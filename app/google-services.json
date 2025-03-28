@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "47626169867",
+    "firebase_url": "https://thoiquen-f1c15-default-rtdb.firebaseio.com",
+    "project_id": "thoiquen-f1c15",
+    "storage_bucket": "thoiquen-f1c15.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:47626169867:android:eef4043f5d5c7251a1e10e",
+        "android_client_info": {
+          "package_name": "com.thtung.habit_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6GM_Yzff3gkZV_gfLsPhG7AztvPk0W74"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

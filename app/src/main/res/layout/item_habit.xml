@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_habit"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginRight="15dp"
+    android:layout_marginLeft="15dp"
+    android:background="@drawable/test_bg"
+    android:animateLayoutChanges="false">
+
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_habit"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:scaleType="centerCrop"
+        android:layout_marginLeft="15dp"
+        android:src="@drawable/img_ghichu"
+        app:shapeAppearanceOverlay="@style/RoundedImage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/ten_habit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="15dp"
+        android:fontFamily="@font/k2d"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="15dp"
+        android:text="Ten Habit"
+        app:layout_constraintStart_toEndOf="@+id/icon_habit"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/muc_tieu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mục tiêu"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/k2d"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/icon_habit"
+        app:layout_constraintTop_toBottomOf="@+id/ten_habit" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="15dp"
+        android:scaleX="1.1"
+        android:scaleY="1.1"
+        android:text="Xong"
+        android:fontFamily="@font/k2d"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/note_Btn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginRight="10dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/icon_note"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/checkBox"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
