@@ -3,102 +3,102 @@ package com.thtung.habit_app.model;
 import com.google.firebase.Timestamp;
 
 public class Habit {
-    private String habitID;
-    private String userID;
-    private String habitName;
-    private String iconUrl;
-    private String lapLai;
-    private String mucTieu;
-    private String timeNhacNho;
-    private String ghiChu;
-    private Timestamp ngayBD;
+    private String id;
+    private String user_id;
+    private String name;
+    private String url_icon;
+    private String repeat;
+    private String target;
+    private String remind_time;
+    private String description;
+    private Timestamp start_at;
 
 
     public Habit() {
 
     }
 
-    public Habit(String habitID, String userID, String habitName, String iconUrl, String lapLai, String mucTieu, String timeNhacNho, String ghiChu, Timestamp ngayBD) {
-        this.habitID = habitID;
-        this.userID = userID;
-        this.habitName = habitName;
-        this.iconUrl = iconUrl;
-        this.lapLai = lapLai;
-        this.mucTieu = mucTieu;
-        this.timeNhacNho = timeNhacNho;
-        this.ghiChu = ghiChu;
-        this.ngayBD = ngayBD;
+    public Habit(String id, String user_id, String name, String url_icon, String repeat, String target, String remind_time, String description, Timestamp start_at) {
+        this.id = id;
+        this.user_id = user_id;
+        this.name = name;
+        this.url_icon = url_icon;
+        this.repeat = repeat;
+        this.target = target;
+        this.remind_time = remind_time;
+        this.description = description;
+        this.start_at = start_at;
     }
 
-    public String getHabitID() {
-        return habitID;
+    public String getId() {
+        return id;
     }
 
-    public void setHabitID(String habitID) {
-        this.habitID = habitID;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getUserID() {
-        return userID;
+    public String getUser_id() {
+        return user_id;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
 
-    public String getHabitName() {
-        return habitName;
+    public String getName() {
+        return name;
     }
 
-    public void setHabitName(String habitName) {
-        this.habitName = habitName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getIconUrl() {
-        return iconUrl;
+    public String getUrl_icon() {
+        return url_icon;
     }
 
-    public void setIconUrl(String iconUrl) {
-        this.iconUrl = iconUrl;
+    public void setUrl_icon(String url_icon) {
+        this.url_icon = url_icon;
     }
 
-    public String getLapLai() {
-        return lapLai;
+    public String getRepeat() {
+        return repeat;
     }
 
-    public void setLapLai(String lapLai) {
-        this.lapLai = lapLai;
+    public void setRepeat(String repeat) {
+        this.repeat = repeat;
     }
 
-    public String getMucTieu() {
-        return mucTieu;
+    public String getTarget() {
+        return target;
     }
 
-    public void setMucTieu(String mucTieu) {
-        this.mucTieu = mucTieu;
+    public void setTarget(String target) {
+        this.target = target;
     }
 
-    public String getTimeNhacNho() {
-        return timeNhacNho;
+    public String getRemind_time() {
+        return remind_time;
     }
 
-    public void setTimeNhacNho(String timeNhacNho) {
-        this.timeNhacNho = timeNhacNho;
+    public void setRemind_time(String remind_time) {
+        this.remind_time = remind_time;
     }
 
-    public String getGhiChu() {
-        return ghiChu;
+    public String getDescription() {
+        return description;
     }
 
-    public void setGhiChu(String ghiChu) {
-        this.ghiChu = ghiChu;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public Timestamp getNgayBD() {
-        return ngayBD;
+    public Timestamp getStart_at() {
+        return start_at;
     }
 
-    public void setNgayBD(Timestamp ngayBD) {
-        this.ngayBD = ngayBD;
+    public void setStart_at(Timestamp start_at) {
+        this.start_at = start_at;
     }
 }

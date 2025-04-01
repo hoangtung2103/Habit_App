@@ -54,15 +54,15 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     @Override
     public void onBindViewHolder(@NonNull HabitViewHolder holder, int position) {
         Habit habit = filteredHabitList.get(position);
-        holder.binding.tenHabit.setText(habit.getHabitName());
-        holder.binding.mucTieu.setText(habit.getMucTieu());
-        Glide.with(context).load(habit.getIconUrl()).into(holder.binding.iconHabit);
+        holder.binding.tenHabit.setText(habit.getName());
+        holder.binding.mucTieu.setText(habit.getTarget());
+        Glide.with(context).load(habit.getUrl_icon()).into(holder.binding.iconHabit);
 
         // Lấy ngày hiện tại dạng yyyyMMdd
         String today = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
 
         // Kiểm tra trạng thái hoàn thành hôm nay
-        firestoreManager.checkHabitLog(habit.getHabitID(), userId, today, new FirestoreManager.CheckHabitLogCallback() {
+        firestoreManager.checkHabitLog(habit.getId(), userId, today, new FirestoreManager.CheckHabitLogCallback() {
             @Override
             public void onCheckCompleted(boolean completed) {
                 holder.binding.checkBox.setOnCheckedChangeListener(null); // Xóa listener cũ tránh callback khi setChecked
@@ -71,7 +71,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
                 holder.binding.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (isChecked && holder.binding.checkBox.isEnabled()) {
-                        firestoreManager.saveHabitLog(context, habit.getHabitID(), userId, today, true);
+                        firestoreManager.saveHabitLog(context, habit.getId(), userId, today, true);
                         holder.binding.checkBox.setEnabled(false);
                     } else if (!isChecked) {
                         holder.binding.checkBox.setChecked(true); // Không cho uncheck
@@ -101,8 +101,8 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     }
 
     private boolean shouldDisplayToday(Habit habit) {
-        String repeatType = habit.getLapLai();
-        Date startDate = habit.getNgayBD().toDate();
+        String repeatType = habit.getRepeat();
+        Date startDate = habit.getStart_at().toDate();
         Date todayDate = new Date();
 
         // Định dạng yyyyMMdd để so sánh ngày chính xác, bỏ qua giờ phút giây

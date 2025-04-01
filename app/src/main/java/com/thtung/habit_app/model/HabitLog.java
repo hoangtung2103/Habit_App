@@ -1,45 +1,45 @@
 package com.thtung.habit_app.model;
 
 public class HabitLog {
-    private String logId;
-    private String habitId;
-    private String userId;
+    private String id;
+    private String habit_id;
+    private String user_id;
     private String date;  // yyyy-MM-dd
     private boolean completed;
 
     public HabitLog() {
     }
 
-    public HabitLog(String logId, String habitId, String userId, String date, boolean completed) {
-        this.logId = logId;
-        this.habitId = habitId;
-        this.userId = userId;
+    public HabitLog(String id, String habit_id, String user_id, String date, boolean completed) {
+        this.id = id;
+        this.habit_id = habit_id;
+        this.user_id = user_id;
         this.date = date;
         this.completed = completed;
     }
 
-    public String getLogId() {
-        return logId;
+    public String getId() {
+        return id;
     }
 
-    public void setLogId(String logId) {
-        this.logId = logId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getHabitId() {
-        return habitId;
+    public String getHabit_id() {
+        return habit_id;
     }
 
-    public void setHabitId(String habitId) {
-        this.habitId = habitId;
+    public void setHabit_id(String habit_id) {
+        this.habit_id = habit_id;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUser_id() {
+        return user_id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
 
     public String getDate() {

@@ -77,7 +77,7 @@ public class SignupActivity extends AppCompatActivity {
         userMap.put("gender", "");
         userMap.put("description", "");
 
-        db.collection("user").document(uid)
+        db.collection("User").document(uid)
                 .set(userMap)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(SignupActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
