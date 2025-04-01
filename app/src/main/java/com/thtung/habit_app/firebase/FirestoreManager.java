@@ -24,10 +24,11 @@ public class FirestoreManager {
 
 
     public void getUser(String userId, UserCallback callback) {
-        db.collection("user").document(userId).get()
+        db.collection("User").document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if(documentSnapshot.exists()) {
                         User user = documentSnapshot.toObject(User.class);
+                        user.setId(documentSnapshot.getId());
                         callback.onUserLoaded(user);
                     } else {
                         callback.onError("User not found");
@@ -38,16 +39,16 @@ public class FirestoreManager {
 
     public void saveHabit(Context context, String habitID, String userID, String habitName, String iconUrl, String lapLai, String mucTieu, String timeNhacNho, String ghiChu, Timestamp ngayBD) {
         Map <String, Object> habitMap = new HashMap<>();
-        habitMap.put("userID", userID);
-        habitMap.put("habitName", habitName);
-        habitMap.put("iconUrl", iconUrl);
-        habitMap.put("lapLai", lapLai);
-        habitMap.put("mucTieu", mucTieu);
-        habitMap.put("timeNhacNho", timeNhacNho);
-        habitMap.put("ghiChu", ghiChu);
-        habitMap.put("ngayBD", ngayBD);
+        habitMap.put("user_id", userID);
+        habitMap.put("name", habitName);
+        habitMap.put("url_icon", iconUrl);
+        habitMap.put("repeat", lapLai);
+        habitMap.put("target", mucTieu);
+        habitMap.put("remind_time", timeNhacNho);
+        habitMap.put("description", ghiChu);
+        habitMap.put("start_at", ngayBD);
 
-        db.collection("habit")
+        db.collection("Habit")
                 .add(habitMap)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(context, "Thêm thói quen thành công!", Toast.LENGTH_SHORT).show();
@@ -58,14 +59,14 @@ public class FirestoreManager {
 
 
     public void getHabits(String userId, HabitListCallback callback) {
-        db.collection("habit")
-                .whereEqualTo("userID", userId)
+        db.collection("Habit")
+                .whereEqualTo("user_id", userId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     ArrayList<Habit> habitList = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         Habit habit = doc.toObject(Habit.class);
-                        habit.setHabitID(doc.getId());
+                        habit.setId(doc.getId());
                         habitList.add(habit);
                     }
                     callback.onHabitListLoaded(habitList);
@@ -75,12 +76,12 @@ public class FirestoreManager {
 
     public void saveHabitLog(Context context, String habitId, String userId, String date, boolean completed) {
         Map<String, Object> logMap = new HashMap<>();
-        logMap.put("habitId", habitId);
-        logMap.put("userId", userId);
+        logMap.put("habit_id", habitId);
+        logMap.put("user_id", userId);
         logMap.put("date", date);  // format yyyyMMdd
         logMap.put("completed", completed);
 
-        db.collection("habit_logs")
+        db.collection("HabitLog")
                 .add(logMap)
                 .addOnSuccessListener(documentReference -> {
                         Toast.makeText(context, "Cập nhật trạng thái thành công!", Toast.LENGTH_SHORT).show();
@@ -90,9 +91,9 @@ public class FirestoreManager {
     }
 
     public void checkHabitLog(String habitId, String userId, String date, CheckHabitLogCallback callback) {
-        db.collection("habit_logs")
-                .whereEqualTo("habitId", habitId)
-                .whereEqualTo("userId", userId)
+        db.collection("HabitLog")
+                .whereEqualTo("habit_id", habitId)
+                .whereEqualTo("user_id", userId)
                 .whereEqualTo("date", date)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
