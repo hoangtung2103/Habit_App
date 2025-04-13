@@ -77,7 +77,6 @@ public class AddNoteActivity extends AppCompatActivity {
         }
 
         Map<String, Object> noteData = new HashMap<>();
-        noteData.put("user_id", userId);
         noteData.put("content", noteContent);
         noteData.put("create_at", Timestamp.now());
 
@@ -96,17 +95,14 @@ public class AddNoteActivity extends AppCompatActivity {
                     );
         } else {
             // Thêm mới ghi chú
-            String newNoteId = firestore.collection("HabitNote").document().getId();
-            noteData.put("id", newNoteId);
             firestore.collection("HabitNote")
-                    .document(newNoteId)
-                    .set(noteData)
+                    .add(noteData)
                     .addOnSuccessListener(documentReference -> {
-                        Toast.makeText(this, "Đã lưu ghi chú mới!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Đã thêm ghi chú mới!", Toast.LENGTH_SHORT).show();
                         finish();
                     })
                     .addOnFailureListener(e ->
-                            Toast.makeText(this, "Lưu thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Thêm ghi chú thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                     );
         }
     }
