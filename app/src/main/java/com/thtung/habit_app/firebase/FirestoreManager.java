@@ -346,6 +346,48 @@ public class FirestoreManager {
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
+    public void saveHabitNote(Context context, String noteId, String habitId, String userId, String content, Timestamp createAt) {
+        Map<String, Object> noteMap = new HashMap<>();
+        noteMap.put("id", noteId);
+        noteMap.put("habit_id", habitId);
+        noteMap.put("user_id", userId);
+        noteMap.put("content", content);
+        noteMap.put("create_at", createAt);
+
+        db.collection("HabitNote")
+                .document(noteId)
+                .set(noteMap)
+                .addOnSuccessListener(aVoid ->
+                        Toast.makeText(context, "Đã lưu ghi chú!", Toast.LENGTH_SHORT).show()
+                )
+                .addOnFailureListener(e ->
+                        Toast.makeText(context, "Lỗi khi lưu ghi chú!", Toast.LENGTH_SHORT).show()
+                );
+    }
+    public void getHabitNotes(String userId, HabitNoteListCallback callback) {
+        db.collection("HabitNote")
+                .whereEqualTo("user_id", userId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    ArrayList<HabitNote> noteList = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        HabitNote note = doc.toObject(HabitNote.class);
+                        noteList.add(note);
+                    }
+                    callback.onHabitNoteListLoaded(noteList);
+                })
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+    public void deleteHabitNote(String userId, String noteId, NoteDeleteCallback callback) {
+        db.collection("users")
+                .document(userId)
+                .collection("habit_notes")
+                .document(noteId)
+                .delete()
+                .addOnSuccessListener(aVoid -> callback.onNoteDeleted())
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+
 
 
 
@@ -384,6 +426,14 @@ public class FirestoreManager {
 
     public interface GetStatisticCallback {
         void onStatisticLoaded(Statistic statistic);
+        void onError(String errorMessage);
+    }
+    public interface NoteDeleteCallback {
+        void onNoteDeleted();
+        void onError(String errorMessage);
+    }
+    public interface HabitNoteListCallback {
+        void onHabitNoteListLoaded(ArrayList<HabitNote> noteList);
         void onError(String errorMessage);
     }
 

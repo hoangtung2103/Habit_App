@@ -1,7 +1,16 @@
 <resources>
     <string name="app_name">Thói Quen</string>
     <string name="log_in">Log in</string>
-    <string name="sing_up">Sing up</string>
+    <string name="sing_up">Sign up</string>
     <string name="example_gmail_com">example@gmail.com</string>
     <string name="default_web_client_id">47626169867-8rdjunbu0jurjb0g93jv99v67mu9feip.apps.googleusercontent.com</string>
+    <string name="note_title">Tập chân</string>
+    <string name="note_time">13h30, 01/01/2001</string>
+    <string name="note_content">Thêm ghi chú của bạn...</string>
+    <string name="cancel">Huỷ</string>
+    <string name="save">Lưu</string>
+    <string name="desc_back_button">Nút quay lại</string>
+    <string name="desc_edit_note">Chỉnh sửa ghi chú</string>
+    <string name="desc_delete_note">Xoá ghi chú</string>
+    <string name="desc_add_note">Thêm ghi chú mới</string>
 </resources>

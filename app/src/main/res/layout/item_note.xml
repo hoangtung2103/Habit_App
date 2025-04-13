@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:backgroundTint="#AECBFA"
+    android:elevation="2dp"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/note_background">
+
+    <TextView
+        android:id="@+id/noteContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Không còn đứng được"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#000"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/noteTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="14:05,"
+            android:textSize="12sp"
+            android:textColor="#333"
+            android:layout_gravity="start"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:id="@+id/editButton"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_edit"
+            android:contentDescription="@string/desc_edit_note" />
+
+        <ImageView
+            android:id="@+id/deleteButton"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_delete"
+            android:contentDescription="@string/desc_delete_note" />
+    </LinearLayout>
+</LinearLayout>
