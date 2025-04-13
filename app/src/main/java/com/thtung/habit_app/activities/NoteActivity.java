@@ -3,6 +3,7 @@ package com.thtung.habit_app.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,7 +32,7 @@ public class NoteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_daily_note);
+        setContentView(R.layout.item_habit_note); // Đảm bảo layout này chứa recyclerViewNotes, addButton, note_title
 
         recyclerView = findViewById(R.id.recyclerViewNotes);
         addButton = findViewById(R.id.addButton);
@@ -40,6 +41,10 @@ public class NoteActivity extends AppCompatActivity {
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         habitId = getIntent().getStringExtra("habitId");
+        String habitName = getIntent().getStringExtra("habitName");
+
+        TextView noteTitle = findViewById(R.id.note_title);
+        noteTitle.setText(habitName);
 
         adapter = new HabitNoteAdapter(this, noteList, new HabitNoteAdapter.OnNoteActionListener() {
             @Override
@@ -56,7 +61,7 @@ public class NoteActivity extends AppCompatActivity {
                     @Override
                     public void onNoteDeleted() {
                         Toast.makeText(NoteActivity.this, "Đã xoá ghi chú", Toast.LENGTH_SHORT).show();
-                        loadNotesFromFirestore(); // Refresh
+                        loadNotesFromFirestore();
                     }
 
                     @Override
@@ -83,20 +88,20 @@ public class NoteActivity extends AppCompatActivity {
         firestoreManager.getHabitNotes(userId, new FirestoreManager.HabitNoteListCallback() {
             @Override
             public void onHabitNoteListLoaded(ArrayList<HabitNote> notes) {
-                noteList.clear();
-
+                List<HabitNote> filtered = new ArrayList<>();
                 for (HabitNote note : notes) {
                     if (note.getHabitId().equals(habitId)) {
-                        noteList.add(note);
+                        filtered.add(note);
                     }
                 }
-
+                noteList.clear();
+                noteList.addAll(filtered);
                 adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onError(String errorMessage) {
-                Toast.makeText(NoteActivity.this, "Lỗi tải ghi chú: " + errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(NoteActivity.this, "Lỗi tải dữ liệu: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }

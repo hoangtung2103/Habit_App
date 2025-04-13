@@ -347,24 +347,7 @@ public class FirestoreManager {
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
-    public void saveHabitNote(Context context, String noteId, String habitId, String userId, String content, Timestamp createAt) {
-        Map<String, Object> noteMap = new HashMap<>();
-        noteMap.put("id", noteId);
-        noteMap.put("habit_id", habitId);
-        noteMap.put("user_id", userId);
-        noteMap.put("content", content);
-        noteMap.put("create_at", createAt);
 
-        db.collection("HabitNote")
-                .document(noteId)
-                .set(noteMap)
-                .addOnSuccessListener(aVoid ->
-                        Toast.makeText(context, "Đã lưu ghi chú!", Toast.LENGTH_SHORT).show()
-                )
-                .addOnFailureListener(e ->
-                        Toast.makeText(context, "Lỗi khi lưu ghi chú!", Toast.LENGTH_SHORT).show()
-                );
-    }
     public void getHabitNotes(String userId, HabitNoteListCallback callback) {
         db.collection("HabitNote")
                 .whereEqualTo("user_id", userId)
