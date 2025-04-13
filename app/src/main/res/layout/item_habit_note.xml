@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F2F2F2">
+
+    <!-- Header -->
+
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="362dp"
+        android:layout_height="57dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/note_header"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintHorizontal_bias="0.489"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_back"
+            android:contentDescription="@string/desc_back_button"/>
+
+        <TextView
+            android:id="@+id/note_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tập chân"
+            android:textColor="#000"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:src="@drawable/note_title"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/dropdown"
+        android:layout_width="316dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/dropdown_background"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:text="30 ngày trước ▼"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header" />
+
+    <RelativeLayout
+        android:id="@+id/note1"
+        android:layout_width="379dp"
+        android:layout_height="178dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="28dp"
+        android:background="#AECBFA"
+        android:padding="12dp"
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dropdown">
+
+        <!-- Nội dung ghi chú -->
+        <TextView
+            android:id="@+id/note1_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Không còn đứng được"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
+        <!-- Thời gian -->
+        <TextView
+            android:id="@+id/note1_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/note1_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="8dp"
+            android:text="14:05, 15/02/2025"
+            android:textColor="#333"
+            android:textSize="12sp" />
+
+        <!-- Nút sửa -->
+        <ImageView
+            android:id="@+id/note1_edit"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:contentDescription="@string/desc_edit_note"
+            android:src="@drawable/ic_edit" />
+
+        <!-- Nút xoá -->
+        <ImageView
+            android:id="@+id/note1_delete"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="@string/desc_delete_note"
+            android:src="@drawable/ic_delete" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/note2"
+        android:layout_width="379dp"
+        android:layout_height="178dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="48dp"
+        android:background="#AECBFA"
+        android:padding="12dp"
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/note1">
+
+        <!-- Nội dung ghi chú -->
+        <TextView
+            android:id="@+id/note2_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1000 cái squat"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
+        <!-- Thời gian -->
+        <TextView
+            android:id="@+id/note2_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/note2_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="8dp"
+            android:text="@string/note_time"
+            android:textColor="#333"
+            android:textSize="12sp" />
+
+        <!-- Nút sửa -->
+        <ImageView
+            android:id="@+id/note2_edit"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:contentDescription="@string/desc_edit_note"
+            android:src="@drawable/ic_edit" />
+
+        <!-- Nút xoá -->
+        <ImageView
+            android:id="@+id/note2_delete"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="@string/desc_delete_note"
+            android:src="@drawable/ic_delete" />
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/addButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="44dp"
+        android:layout_marginBottom="64dp"
+        android:background="@drawable/add_button_background"
+        android:src="@drawable/ic_addnote"
+        android:contentDescription="@string/desc_add_note"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
