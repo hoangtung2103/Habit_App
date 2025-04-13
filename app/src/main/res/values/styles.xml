@@ -8,4 +8,10 @@
     <style name="RoundedImage" parent="">
         <item name="cornerSize">8dp</item>
     </style>
+
+    <style name="TransparentDialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item> <!-- vẫn cho nền tối nhẹ khi hiển thị -->
+    </style>
+
 </resources>

@@ -60,6 +60,7 @@ public class SignupActivity extends AppCompatActivity {
                             saveUserToFirestore(user.getUid(), name, email);
                             FirebaseAuth.getInstance().signOut();
                             startActivity(new Intent(SignupActivity.this, LoginActivity.class));
+                            finish();
                         }
                     } else {
                         Toast.makeText(this, "Đăng ký thất bại: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
