@@ -13,6 +13,7 @@ import com.google.firebase.firestore.WriteBatch;
 import com.thtung.habit_app.activities.AddHabitActivity;
 import com.thtung.habit_app.model.Habit;
 import com.thtung.habit_app.model.HabitLog;
+import com.thtung.habit_app.model.HabitNote;
 import com.thtung.habit_app.model.Statistic;
 import com.thtung.habit_app.model.User;
 import com.thtung.habit_app.utils.CalculateLastCompleted;
