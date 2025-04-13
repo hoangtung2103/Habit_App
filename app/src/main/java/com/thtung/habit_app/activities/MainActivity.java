@@ -2,21 +2,14 @@ package com.thtung.habit_app.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.Firebase;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.thtung.habit_app.R;
@@ -28,6 +21,7 @@ import com.thtung.habit_app.model.DayModel;
 import com.thtung.habit_app.model.Habit;
 import com.thtung.habit_app.model.User;
 import com.thtung.habit_app.utils.CloudinaryManager;
+import com.thtung.habit_app.utils.StatisticUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,7 +50,15 @@ public class MainActivity extends AppCompatActivity {
             return;
         } else {
             setContentView(binding.getRoot());
+            getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                    .edit()
+                    .putString("userId", user.getUid())
+                    .apply();
         }
+
+        //Cập nhật last_completed và streak
+        StatisticUtil.checkAndUpdateStatisticsOncePerDay(MainActivity.this, user.getUid());
+
 
         //Hiển thị Avatar và tên người dùng
         firestoreManager.getUser(user.getUid(), new FirestoreManager.UserCallback() {
@@ -83,14 +85,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        binding.button2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                FirebaseAuth.getInstance().signOut();
-//                startActivity(new Intent(MainActivity.this, LoginActivity.class));
-//                finish();
-//            }
-//        });
+
+        //Test Đăng xuaats
+        binding.btnCaidat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                finish();
+            }
+        });
+
+
         //Hiển thị lịch 1 tuần
         binding.weekRecyclerView.setLayoutManager(new GridLayoutManager(this, 7)); // 7 cột cố định
         initWeekData();

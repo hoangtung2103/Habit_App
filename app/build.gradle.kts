@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.thtung.habit_app"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -56,4 +56,10 @@ dependencies {
     implementation("androidx.emoji2:emoji2-views:1.5.0")
     implementation("androidx.emoji2:emoji2-views-helper:1.5.0")
     implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.work:work-runtime:2.10.0")
+    implementation("com.google.guava:guava:31.1-android")
+    implementation("com.kizitonwose.calendar:view:2.4.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.google.android.gms:play-services-auth:20.5.0")
+    implementation("com.facebook.android:facebook-android-sdk:12.0.0")
 }

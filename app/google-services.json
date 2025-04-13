@@ -8,12 +8,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:47626169867:android:eef4043f5d5c7251a1e10e",
+        "mobilesdk_app_id": "1:47626169867:android:dd9faa0ad2183439a1e10e",
         "android_client_info": {
-          "package_name": "com.thtung.habit_app"
+          "package_name": "com.example.myapplication"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "47626169867-8rdjunbu0jurjb0g93jv99v67mu9feip.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD6GM_Yzff3gkZV_gfLsPhG7AztvPk0W74"
@@ -21,7 +26,41 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "47626169867-8rdjunbu0jurjb0g93jv99v67mu9feip.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:47626169867:android:eef4043f5d5c7251a1e10e",
+        "android_client_info": {
+          "package_name": "com.thtung.habit_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "47626169867-8rdjunbu0jurjb0g93jv99v67mu9feip.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6GM_Yzff3gkZV_gfLsPhG7AztvPk0W74"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "47626169867-8rdjunbu0jurjb0g93jv99v67mu9feip.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

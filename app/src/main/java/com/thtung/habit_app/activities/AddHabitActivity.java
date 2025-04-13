@@ -266,13 +266,4 @@ public class AddHabitActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-    private void hideKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.hideSoftInputFromWindow(binding.tenHabitEdt.getWindowToken(), 0);
-        }
-    }
-
-
 }

@@ -13,6 +13,12 @@
         android:theme="@style/Theme.Habit_app"
         tools:targetApi="31">
         <activity
+            android:name=".activities.EditHabitActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.HabitDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.AddHabitActivity"
             android:exported="false" />
         <activity

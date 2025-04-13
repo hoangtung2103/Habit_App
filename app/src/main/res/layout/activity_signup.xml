@@ -23,8 +23,8 @@
 
                 <ImageView
                     android:id="@+id/imageView"
-                    android:layout_width="297dp"
-                    android:layout_height="260dp"
+                    android:layout_width="250dp"
+                    android:layout_height="240dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -35,7 +35,7 @@
                     android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Let's get started!"
+                    android:text="Bắt đầu thói quen mới !"
                     android:textSize="25sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -52,7 +52,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="EMAIL ADDRESS"
+                    android:text="ĐỊA CHỈ EMAIL"
                     android:textColor="@color/gray"
                     android:textSize="15sp" />
 
@@ -62,10 +62,11 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="24dp"
+                    android:paddingStart="16dp"
                     android:background="@drawable/grey_bg"
                     android:ems="10"
-                    android:hint="   example@gmail.com"
-                    android:inputType="text"
+                    android:hint="example@gmail.com"
+                    android:inputType="textEmailAddress"
                     android:textColor="#8e8e8e"
                     android:textColorHint="#8e8e8e"
                     android:textSize="16sp" />
@@ -73,7 +74,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="NAME"
+                    android:text="HỌ VÀ TÊN"
                     android:textColor="@color/gray"
                     android:textSize="15sp" />
 
@@ -83,9 +84,10 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="24dp"
+                    android:paddingStart="16dp"
                     android:background="@drawable/grey_bg"
                     android:ems="10"
-                    android:hint="   Type your name"
+                    android:hint="Tên của bạn"
                     android:inputType="text"
                     android:textColor="#8e8e8e"
                     android:textColorHint="#8e8e8e"
@@ -94,7 +96,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="PASSWORD"
+                    android:text="MẬT KHẨU"
                     android:textColor="@color/gray"
                     android:textSize="15sp" />
 
@@ -104,10 +106,11 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="24dp"
+                    android:paddingStart="16dp"
                     android:background="@drawable/grey_bg"
                     android:ems="10"
-                    android:hint="   ***********"
-                    android:inputType="text"
+                    android:hint="***********"
+                    android:inputType="textPassword"
                     android:textColor="#8e8e8e"
                     android:textColorHint="#8e8e8e"
                     android:textSize="16sp" />
@@ -119,7 +122,7 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="15dp"
                     android:background="@drawable/btn_bg"
-                    android:text="@string/sing_up"
+                    android:text="Đăng kí"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
@@ -134,7 +137,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Already an account?"
+                        android:text="Bạn đã có tài khoản?"
                         android:textSize="16sp" />
 
                     <TextView
@@ -143,7 +146,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:focusable="true"
-                        android:text=" Log in"
+                        android:text=" Đăng nhập"
                         android:textColor="#666af6"
                         android:textSize="16sp" />
                 </LinearLayout>

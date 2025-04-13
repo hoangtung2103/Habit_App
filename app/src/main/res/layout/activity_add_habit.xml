@@ -345,32 +345,54 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/huy_btn"
-        android:layout_width="120dp"
-        android:layout_height="60dp"
-        android:text="HUỶ"
-        android:textColor="@color/white"
-        android:fontFamily="@font/k2d"
-        android:textSize="20dp"
-        android:background="@drawable/btn_bg"
-        app:layout_constraintTop_toBottomOf="@id/linearLayout3"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/luu_btn"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/luu_btn"
-        android:layout_width="120dp"
-        android:layout_height="60dp"
-        android:text="LƯU"
-        android:textColor="@color/white"
-        android:fontFamily="@font/k2d"
-        android:textSize="20dp"
-        android:background="@drawable/btn_bg"
-        app:layout_constraintTop_toBottomOf="@id/linearLayout3"
-        app:layout_constraintStart_toEndOf="@id/huy_btn"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card1"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        app:cardCornerRadius="25dp"
+        android:layout_margin="20dp"
+        app:cardBackgroundColor="#A5F1E9"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/luu_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="LƯU"
+            android:textColor="@color/black"
+            android:fontFamily="@font/k2d"
+            android:textSize="20dp"
+            android:background="@android:color/transparent"/>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card2"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        app:cardCornerRadius="25dp"
+        android:layout_margin="20dp"
+        app:cardBackgroundColor="#D8B4F8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/card1">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/huy_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="HUỶ"
+            android:textColor="@color/black"
+            android:fontFamily="@font/k2d"
+            android:textSize="20dp"
+            android:background="@android:color/transparent"/>
+
+    </androidx.cardview.widget.CardView>
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

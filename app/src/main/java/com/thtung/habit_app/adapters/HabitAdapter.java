@@ -1,6 +1,7 @@
 package com.thtung.habit_app.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.thtung.habit_app.activities.HabitDetailActivity;
 import com.thtung.habit_app.databinding.ItemHabitBinding;
 import com.thtung.habit_app.firebase.FirestoreManager;
 import com.thtung.habit_app.model.Habit;
@@ -72,6 +74,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
                 holder.binding.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (isChecked && holder.binding.checkBox.isEnabled()) {
                         firestoreManager.saveHabitLog(context, habit.getId(), userId, today, true);
+                        firestoreManager.updateStatisticAfterLog(context, habit.getId(), userId, today, habit.getRepeat());
                         holder.binding.checkBox.setEnabled(false);
                     } else if (!isChecked) {
                         holder.binding.checkBox.setChecked(true); // Không cho uncheck
@@ -83,6 +86,13 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
             public void onError(String errorMessage) {
                 // Xử lý lỗi nếu cần
             }
+        });
+
+        holder.binding.getRoot().setOnClickListener(v -> {
+            Intent intent = new Intent(context, HabitDetailActivity.class);
+            intent.putExtra("habitId", habit.getId());
+            intent.putExtra("habitName", habit.getName());
+            context.startActivity(intent);
         });
     }
 
