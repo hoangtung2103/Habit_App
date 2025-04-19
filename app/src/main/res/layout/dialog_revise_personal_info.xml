@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="396dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:layout_gravity="center_horizontal"
+    android:background="#FAEED9"
+    android:id="@+id/popup_revise_personal">
+
+    <LinearLayout
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tên hiển thị"
+                android:textColor="#0B4A3B"
+                android:textStyle="bold"/>
+            <EditText
+                android:id="@+id/username_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18dp"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ngày sinh"
+                android:textColor="#0B4A3B"
+                android:textStyle="bold"/>
+            <EditText
+                android:id="@+id/dob_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18dp"
+                android:focusable="false"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:textColor="#0B4A3B"
+                android:textStyle="bold"/>
+            <EditText
+                android:id="@+id/email_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18dp"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/button_submit_revise_personal"
+            android:layout_width="123dp"
+            android:layout_height="43dp"
+            android:drawableEnd="@drawable/check_ring"
+            android:drawablePadding="8dp"
+            android:layout_gravity="center"
+            android:backgroundTint="#FFA725"
+            android:gravity="center_vertical"
+            android:text="Lưu"
+            android:textColor="#0B4A3B"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,21 +1,29 @@
 package com.thtung.habit_app.firebase;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.thtung.habit_app.activities.AddHabitActivity;
 import com.thtung.habit_app.model.Habit;
 import com.thtung.habit_app.model.HabitLog;
 import com.thtung.habit_app.model.HabitNote;
+import com.thtung.habit_app.model.RewardMilestone;
 import com.thtung.habit_app.model.Statistic;
 import com.thtung.habit_app.model.User;
+import com.thtung.habit_app.model.UserMilestone;
+import com.thtung.habit_app.model.UserPoint;
+import com.thtung.habit_app.model.UserStreak;
 import com.thtung.habit_app.utils.CalculateLastCompleted;
 
 import java.text.SimpleDateFormat;
@@ -23,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -162,7 +171,15 @@ public class FirestoreManager {
                 });
     }
 
-    public void saveHabitLog(Context context, String habitId, String userId, String date, boolean completed) {
+    public void saveHabitLog(String habitId, String userId, String date, boolean completed, FirestoreWriteCallback callback) {
+        if (userId == null || userId.isEmpty() || habitId == null || habitId.isEmpty() || date == null || date.isEmpty()) {
+            Log.e("FirestoreManager", "Invalid parameters for saveHabitLog.");
+            if (callback != null) {
+                callback.onError("Dữ liệu không hợp lệ để lưu log.");
+            }
+            return;
+        }
+
         Map<String, Object> logMap = new HashMap<>();
         logMap.put("habit_id", habitId);
         logMap.put("user_id", userId);
@@ -172,9 +189,15 @@ public class FirestoreManager {
         db.collection("HabitLog")
                 .add(logMap)
                 .addOnSuccessListener(documentReference -> {
-                        Toast.makeText(context, "Cập nhật trạng thái thành công!", Toast.LENGTH_SHORT).show();
+                    Log.d("FirestoreManager", "HabitLog added/updated successfully. Doc ID: " + documentReference.getId());
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
                 }).addOnFailureListener(e -> {
-                        Toast.makeText(context, "Cập nhật trạng thái thất bại!", Toast.LENGTH_SHORT).show();
+                    Log.e("FirestoreManager", "Error saving HabitLog", e);
+                    if (callback != null) {
+                        callback.onError(e.getMessage());
+                    }
                 });
     }
 
@@ -372,7 +395,156 @@ public class FirestoreManager {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
+    public Task<QuerySnapshot> getHabitsTask(String userId) {
+        return db.collection("Habit").whereEqualTo("user_id", userId).get();
+    }
 
+    public Task<QuerySnapshot> getAllMilestonesTask() {
+        return db.collection("RewardMilestone")
+                .orderBy("required_streak_days", Query.Direction.ASCENDING)
+                .get();
+    }
+
+    public Task<QuerySnapshot> getUserStreakTask(String userId, String streakType) {
+        return db.collection("UserStreak")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("streakType", streakType)
+                .limit(1)
+                .get();
+    }
+
+    public Task<QuerySnapshot> getTodaysCompletionsTask(String userId, String dateStr) {
+        return db.collection("HabitLog")
+                .whereEqualTo("user_id", userId)
+                .whereEqualTo("date", dateStr)
+                // .whereEqualTo("completed", true) // Có thể thêm nếu chỉ muốn lấy log hoàn thành
+                .get();
+    }
+
+    public Task<QuerySnapshot> getAchievedMilestonesTask(String userId) {
+        return db.collection("UserMilestone")
+                .whereEqualTo("userId", userId)
+                .get();
+    }
+
+    // Lấy UserStreak (cần xử lý cả trường hợp không tìm thấy)
+    public void getUserStreak(String userId, String streakType, UserStreakCallback callback) {
+        db.collection("UserStreak")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("streakType", streakType)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        UserStreak streak = querySnapshot.getDocuments().get(0).toObject(UserStreak.class);
+                        if (streak != null) {
+                            streak.setId(querySnapshot.getDocuments().get(0).getId()); // Gán ID nếu cần
+                            callback.onUserStreakLoaded(streak);
+                        } else {
+                            // Lỗi deserialize dù document tồn tại
+                            callback.onError("Error deserializing UserStreak document.");
+                        }
+                    } else {
+                        // Không tìm thấy streak cho user và type này
+                        callback.onUserStreakNotFound();
+                    }
+                })
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+
+    // Cập nhật hoặc Tạo mới UserStreak
+    public void saveOrUpdateUserStreak(UserStreak streak, FirestoreWriteCallback callback) {
+        if (streak == null || streak.getUserId() == null || streak.getUserId().isEmpty()) {
+            callback.onError("Invalid UserStreak object provided.");
+            return;
+        }
+        DocumentReference streakRef;
+        if (streak.getId() != null && !streak.getId().isEmpty()) {
+            streakRef = db.collection("UserStreak").document(streak.getId());
+        } else {
+            // Nếu ID null, tạo document mới và gán ID lại cho object (tùy chọn)
+            streakRef = db.collection("UserStreak").document();
+            // streak.setId(streakRef.getId()); // Gán ID vào object nếu cần dùng ngay sau đó
+        }
+        // Dùng set để ghi đè hoặc tạo mới
+        streakRef.set(streak)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+
+    // Kiểm tra xem UserMilestone đã tồn tại chưa (hữu ích cho ViewModel)
+    public void checkUserMilestoneExists(String userId, String milestoneId, UserMilestoneCheckCallback callback) {
+        db.collection("UserMilestone")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("milestone_id", milestoneId) // Giả sử tên trường là milestone_id
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    callback.onResult(!queryDocumentSnapshots.isEmpty());
+                })
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+
+    // Xóa UserMilestone
+    public void deleteUserMilestone(String userId, String milestoneIdToDelete, FirestoreWriteCallback callback) {
+        // Query để tìm document ID cần xóa
+        db.collection("UserMilestone")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("milestone_id", milestoneIdToDelete) // Giả sử tên trường là milestone_id
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentReference docRef = queryDocumentSnapshots.getDocuments().get(0).getReference();
+                        docRef.delete()
+                                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+                    } else {
+                        Log.w("FirestoreManager", "UserMilestone record not found to delete: " + milestoneIdToDelete);
+                        callback.onSuccess(); // Coi như thành công nếu không tìm thấy để xóa
+                    }
+                })
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+
+    // Lưu Streak và nhiều UserMilestones cùng lúc
+    public void saveStreakAndAchievementsBatch(UserStreak streakToSave, List<UserMilestone> achievementsToSave, FirestoreWriteCallback callback) {
+        if (streakToSave == null || streakToSave.getUserId() == null) {
+            callback.onError("Invalid UserStreak for batch save.");
+            return;
+        }
+        if (achievementsToSave == null) {
+            achievementsToSave = new ArrayList<>(); // Tránh lỗi null
+        }
+
+        WriteBatch batch = db.batch();
+
+        // 1. Set UserStreak
+        DocumentReference streakRef = getStreakDocRef(streakToSave); // Dùng lại helper nếu có, hoặc logic tương tự
+        batch.set(streakRef, streakToSave);
+
+        // 2. Set các UserMilestone mới
+        for (UserMilestone achievement : achievementsToSave) {
+            // Đảm bảo userId khớp hoặc set lại nếu cần
+            achievement.setUser_id(streakToSave.getUserId());
+            DocumentReference achievementRef = db.collection("UserMilestone").document(); // ID mới
+            batch.set(achievementRef, achievement);
+        }
+
+        // 3. Commit batch
+        batch.commit()
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+
+    // Helper lấy DocRef cho Streak
+    private DocumentReference getStreakDocRef(UserStreak streak) {
+        if (streak.getId() != null && !streak.getId().isEmpty()) {
+            return db.collection("UserStreak").document(streak.getId());
+        } else {
+            return db.collection("UserStreak").document(); // Trả về ref mới
+        }
+    }
 
 
 
@@ -420,5 +592,37 @@ public class FirestoreManager {
         void onHabitNoteListLoaded(ArrayList<HabitNote> noteList);
         void onError(String errorMessage);
     }
+
+    public interface FirestoreWriteCallback { // Callback chung cho các thao tác ghi/cập nhật/xóa
+        void onSuccess();
+        void onError(String message);
+    }
+
+    public interface MilestoneListCallback {
+        void onMilestoneListLoaded(List<RewardMilestone> milestones);
+        void onError(String message);
+    }
+
+    public interface UserMilestoneListCallback {
+        void onUserMilestoneListLoaded(List<UserMilestone> userMilestones);
+        void onError(String message);
+    }
+
+    public interface UserStreakCallback {
+        void onUserStreakLoaded(UserStreak userStreak);
+        void onUserStreakNotFound(); // Thêm callback này
+        void onError(String message);
+    }
+
+    public interface UserMilestoneCheckCallback {
+        void onResult(boolean exists); // Trả về true nếu tồn tại
+        void onError(String message);
+    }
+
+    public interface  UserPointCallback{
+        void onUserPointLoaded(UserPoint userPoint);
+        void onError(String errorMessage);
+    }
+
 
 }

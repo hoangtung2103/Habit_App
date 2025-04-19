@@ -5,5 +5,13 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.Habit_app" parent="Base.Theme.Habit_app" />
+    <style name="Theme.Habit_app" parent="Base.Theme.Habit_app">
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+    >
+    <style name="AppThemeProfile" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
 </resources>

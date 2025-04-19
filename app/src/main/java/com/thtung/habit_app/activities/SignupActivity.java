@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.thtung.habit_app.R;
 import com.thtung.habit_app.databinding.ActivitySignupBinding;
+import com.thtung.habit_app.repository.UserPointRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class SignupActivity extends AppCompatActivity {
     private ActivitySignupBinding binding;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    UserPointRepository userPointRepository = UserPointRepository.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +60,7 @@ public class SignupActivity extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if(user != null) {
                             saveUserToFirestore(user.getUid(), name, email);
+                            userPointRepository.createUserPointRecord(user.getUid(), null);
                             FirebaseAuth.getInstance().signOut();
                             startActivity(new Intent(SignupActivity.this, LoginActivity.class));
                             finish();
