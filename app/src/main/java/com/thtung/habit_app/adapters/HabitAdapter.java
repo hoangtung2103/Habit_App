@@ -2,18 +2,24 @@ package com.thtung.habit_app.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.thtung.habit_app.activities.HabitDetailActivity;
+import com.thtung.habit_app.activities.NoteActivity;
 import com.thtung.habit_app.databinding.ItemHabitBinding;
 import com.thtung.habit_app.firebase.FirestoreManager;
 import com.thtung.habit_app.model.Habit;
+import com.thtung.habit_app.model.UserPoint;
+import com.thtung.habit_app.repository.UserPointCallback;
+import com.thtung.habit_app.repository.UserPointRepository;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,12 +34,26 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     private FirestoreManager firestoreManager;
     private String userId;
 
-    public HabitAdapter(Context context, ArrayList<Habit> habitList, String userId) {
+    private OnHabitInteractionListener habitInteractionListener;
+    private UserPointRepository userPointRepository;
+
+    public interface OnHabitInteractionListener {
+        // Thông báo khi habit được check thành công VÀ đã lưu log
+        void onHabitCheckedAndLogged(String habitId, String date);
+        // Thông báo khi có lỗi xảy ra trong quá trình check/lưu log
+        void onHabitCheckFailed(String habitId, String errorMessage);
+        // (Tùy chọn) Thêm các tương tác khác nếu cần, ví dụ onClick item
+        // void onHabitClicked(Habit habit);
+    }
+
+    public HabitAdapter(Context context, ArrayList<Habit> habitList, String userId, FirestoreManager manager, OnHabitInteractionListener listener) {
         this.context = context;
         this.originalHabitList = habitList;
         this.filteredHabitList = new ArrayList<>();
-        this.firestoreManager = new FirestoreManager();
+        this.firestoreManager = manager;
         this.userId = userId;
+        this.habitInteractionListener = listener;
+        this.userPointRepository = userPointRepository.getInstance();
         filterHabits(); // Lọc ra danh sách đúng ngày
     }
 
@@ -73,7 +93,52 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
                 holder.binding.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (isChecked && holder.binding.checkBox.isEnabled()) {
-                        firestoreManager.saveHabitLog(context, habit.getId(), userId, today, true);
+                        firestoreManager.saveHabitLog(habit.getId(), userId, today, true, new FirestoreManager.FirestoreWriteCallback() {
+                            @Override
+                            public void onSuccess() {
+                                // Gọi listener để báo cho Activity/Fragment
+                                if (habitInteractionListener != null) {
+                                    habitInteractionListener.onHabitCheckedAndLogged(habit.getId(), today);
+                                }
+                                // Cập nhật thống kê (có thể chuyển logic này vào ViewModel sau khi nhận callback)
+                                // firestoreManager.updateStatisticAfterLog(habit.getId(), userId, today, habit.getRepeat());
+                                Log.d("HabitAdapter", "saveHabitLog onSuccess for " + habit.getId());
+
+                                userPointRepository.incrementPointPerCompletedHabitInDay(userId, habit.getId(), habit.getName(), new UserPointCallback() {
+                                    @Override
+                                    public void onUserPointLoaded(UserPoint userPoint) {
+
+                                    }
+
+                                    @Override
+                                    public void onPointsAwarded() {
+
+                                    }
+
+                                    @Override
+                                    public void onAlreadyAwardedToday() {
+
+                                    }
+
+                                    @Override
+                                    public void onSuccess() {
+                                        Toast.makeText(context, "Hoàn thành thói quen thành công, + 5 điểm!", Toast.LENGTH_SHORT).show();
+                                        Log.d("HabitAdapter", "Points incremented successfully for " + habit.getName());
+                                    }
+
+                                    @Override
+                                    public void onError(String message) {
+                                        Log.e("HabitAdapter", "Failed to increment points for " + habit.getName() + ": " + message);
+                                        Toast.makeText(context, "Lỗi cộng điểm!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(String message) {
+
+                            }
+                        });
                         firestoreManager.updateStatisticAfterLog(context, habit.getId(), userId, today, habit.getRepeat());
                         holder.binding.checkBox.setEnabled(false);
                     } else if (!isChecked) {
@@ -90,6 +155,13 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
         holder.binding.getRoot().setOnClickListener(v -> {
             Intent intent = new Intent(context, HabitDetailActivity.class);
+            intent.putExtra("habitId", habit.getId());
+            intent.putExtra("habitName", habit.getName());
+            context.startActivity(intent);
+        });
+
+        holder.binding.noteBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(context, NoteActivity.class);
             intent.putExtra("habitId", habit.getId());
             intent.putExtra("habitName", habit.getName());
             context.startActivity(intent);

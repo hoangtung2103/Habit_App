@@ -12,6 +12,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Habit_app"
         tools:targetApi="31">
+        <activity android:name=".activities.ProfileActivity"
+            android:exported="false" />
+        <activity android:name=".activities.BadgeActivity"
+            android:exported="false" />
+        <activity android:name=".activities.NoteActivity"
+            android:exported="false" />
+        <activity android:name=".activities.AddNoteActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.EditHabitActivity"
             android:exported="false" />

@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Thói Quen</string>
-    <string name="log_in">Log in</string>
-    <string name="sing_up">Sign up</string>
     <string name="example_gmail_com">example@gmail.com</string>
     <string name="default_web_client_id">47626169867-8rdjunbu0jurjb0g93jv99v67mu9feip.apps.googleusercontent.com</string>
     <string name="note_title">Tập chân</string>
@@ -13,4 +11,19 @@
     <string name="desc_edit_note">Chỉnh sửa ghi chú</string>
     <string name="desc_delete_note">Xoá ghi chú</string>
     <string name="desc_add_note">Thêm ghi chú mới</string>
+    <string name="logo">Logo</string>
+    <string name="placeholder_password">***********</string>
+    <string name="Login">Đăng nhập</string>
+    <string name="additional_signup">Chưa có tài khoản? Bắt đầu ngay!</string>
+    <string name="welcome">Mừng trở lại!</string>
+    <string name="user_information">Thông tin người dùng</string>
+    <string name="user_information_modification">Chỉnh sửa thông tin</string>
+    <string name="name_display">Tên hiển thị</string>
+    <string name="dob_display">Ngày sinh</string>
+    <string name="email_display">Email</string>
+    <string name="security_and_private">Bảo mật và quyền riêng tư</string>
+    <string name="password_display">Mật khẩu</string>
+    <string name="account_management">Quản lý tài khoản</string>
+    <string name="delete_account">Xóa tài khoản</string>
+    <string name="delete_button">Xóa</string>
 </resources>

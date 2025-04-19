@@ -30,6 +30,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.thtung.habit_app.R;
 import com.thtung.habit_app.databinding.ActivityLoginBinding;
+import com.thtung.habit_app.repository.UserPointRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +44,8 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> signInLauncher;
 
     private FirebaseFirestore db;
+
+    UserPointRepository userPointRepository = UserPointRepository.getInstance();
 
     private static final int RC_SIGN_IN = 9001;
     @Override
@@ -132,6 +135,7 @@ public class LoginActivity extends AppCompatActivity {
                         // Xử lý đăng nhập thành công
                         if(user != null) {
                             saveUserToFirestore(user.getUid(), user.getDisplayName(), user.getEmail());
+                            userPointRepository.createUserPointRecord(user.getUid(), null);
                         }
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
