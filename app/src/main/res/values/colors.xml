@@ -7,4 +7,8 @@
     <color name="yellow">#CBFF51</color>
     <color name="ic_gray">#908D8D</color>
     <color name="bg_gray">#f5f5f5</color>
+    <color name="settings_bg">#F1F5F9</color>
+    <color name="settings_container">#FFF5E4</color>
+    <color name="account_bg">#4F5D73</color>
+    <color name="divider_color">#FF9800</color>
 </resources>

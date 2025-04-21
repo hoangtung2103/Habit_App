@@ -32,7 +32,7 @@ public class NoteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.item_habit_note); // Đảm bảo layout này chứa recyclerViewNotes, addButton, note_title
+        setContentView(R.layout.item_habit_note);
 
         recyclerView = findViewById(R.id.recyclerViewNotes);
         addButton = findViewById(R.id.addButton);
