@@ -24,7 +24,7 @@
         android:id="@+id/textTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/note_time"
+        android:text=""
         android:textSize="16sp"
         android:textColor="#00A3FF"
         android:layout_marginBottom="12dp"

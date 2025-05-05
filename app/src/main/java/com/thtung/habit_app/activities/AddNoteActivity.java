@@ -13,7 +13,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.thtung.habit_app.databinding.ActivityAddNoteBinding;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class AddNoteActivity extends AppCompatActivity {
@@ -21,7 +24,6 @@ public class AddNoteActivity extends AppCompatActivity {
     private ActivityAddNoteBinding binding;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
-
     private String noteId = null;  // nếu null là thêm mới, ngược lại là chỉnh sửa
 
     @Override
@@ -32,6 +34,13 @@ public class AddNoteActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
+
+        // Hiển thị thời gian hiện tại nếu là ghi chú mới
+        if (firebaseAuth.getUid() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+            String currentTime = sdf.format(new Date());
+            binding.textTime.setText(currentTime);
+        }
 
         noteId = getIntent().getStringExtra("noteId");
         if (noteId != null) {
@@ -54,6 +63,16 @@ public class AddNoteActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         String content = documentSnapshot.getString("content");
                         binding.editNoteContent.setText(content);
+
+                        // Lấy và hiển thị thời gian tạo từ Firestore
+                        Timestamp createAt = documentSnapshot.getTimestamp("create_at");
+                        if (createAt != null) {
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+                            String createTime = sdf.format(createAt.toDate());
+                            binding.textTime.setText(createTime);
+                        } else {
+                            binding.textTime.setText("Không có thời gian tạo");
+                        }
                     } else {
                         Toast.makeText(this, "Không tìm thấy ghi chú.", Toast.LENGTH_SHORT).show();
                     }
