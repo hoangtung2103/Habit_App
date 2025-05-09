@@ -4,17 +4,15 @@ public class Statistic {
     String id;
     String habit_id;
     String user_id;
-    long total_completed;
-    long last_completed;
+    Long total_completed;
+    Long last_completed;
     long streak;
     long max_streak;
-
 
     public Statistic() {
     }
 
-
-    public Statistic(String id, String habit_id, String user_id, long total_completed, long last_completed, long streak, long max_streak) {
+    public Statistic(String id, String habit_id, String user_id, Long total_completed, Long last_completed, long streak, long max_streak) {
         this.id = id;
         this.habit_id = habit_id;
         this.user_id = user_id;
@@ -48,19 +46,19 @@ public class Statistic {
         this.user_id = user_id;
     }
 
-    public long getTotal_completed() {
+    public Long getTotal_completed() {  // Sửa từ long thành Long
         return total_completed;
     }
 
-    public void setTotal_completed(long total_completed) {
+    public void setTotal_completed(Long total_completed) {
         this.total_completed = total_completed;
     }
 
-    public long getLast_completed() {
+    public Long getLast_completed() {  // Sửa từ long thành Long
         return last_completed;
     }
 
-    public void setLast_completed(long last_completed) {
+    public void setLast_completed(Long last_completed) {
         this.last_completed = last_completed;
     }
 
@@ -80,5 +78,3 @@ public class Statistic {
         this.max_streak = max_streak;
     }
 }
-
-

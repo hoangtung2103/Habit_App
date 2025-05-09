@@ -70,7 +70,7 @@ public class StatisticActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_caidat).setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(StatisticActivity.this, LoginActivity.class));
+            startActivity(new Intent(StatisticActivity.this, SettingsActivity.class));
             finish();
         });
 

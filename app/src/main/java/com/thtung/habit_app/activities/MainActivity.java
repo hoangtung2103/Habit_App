@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         if (currentUserId != null && !currentUserId.isEmpty()) {
             initializeViewModel(currentUserId);
         } else {
-            Log.e(TAG, "Error: currentUserId is null or empty after auth check.");
+            Log.e(TAG, "Error: currentUser  Id is null or empty after auth check.");
             Toast.makeText(this, "Lỗi xác thực người dùng.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -127,19 +127,21 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                 startActivity(new Intent(MainActivity.this, AddHabitActivity.class));
             }
         });
-
+        binding.imgIcThongke.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, StatisticActivity.class));
+            finish();
+        });
         // Sang trang huy hiệu
         binding.imgIcRank.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, BadgeActivity.class));
             finish();
         });
 
-        //Test Đăng xuaats
+        // Sang trang cài đặt
         binding.btnCaidat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 finish();
             }
         });
