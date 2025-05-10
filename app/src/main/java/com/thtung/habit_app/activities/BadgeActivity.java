@@ -103,23 +103,26 @@ public class BadgeActivity extends AppCompatActivity implements UserDataCallback
         tabBadge.setOnClickListener(v -> viewPager.setCurrentItem(0));
         tabHistory.setOnClickListener(v -> viewPager.setCurrentItem(1));
 
-        binding.buttonCreateMilestone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showBottomSheetDialogCreateMilestone();
-            }
-        });
-
-//        binding.buttonCompletedAllHabit.setOnClickListener((new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                showBottomSheetDialogCompletedAllHabitInDay();
-//            }
-//        }));
-
         binding.imgIcHome.setOnClickListener(v -> {
             startActivity(new Intent(BadgeActivity.this, MainActivity.class));
             finish();
+        });
+
+        binding.imgIcCaidat.setOnClickListener(v -> {
+            startActivity(new Intent(BadgeActivity.this, SettingsActivity.class));
+            finish();
+        });
+
+        binding.imgIcThongke.setOnClickListener(v -> {
+            startActivity(new Intent(BadgeActivity.this, StatisticActivity.class));
+            finish();
+        });
+
+        binding.icAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(BadgeActivity.this, AddHabitActivity.class));
+            }
         });
     }
     @Override

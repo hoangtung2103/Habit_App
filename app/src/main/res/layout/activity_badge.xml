@@ -14,65 +14,60 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_weight="1"
             android:background="@color/white"
-            android:layout_weight="1">
+            android:orientation="vertical">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="10dp"
                 android:text="Huy hiệu, thưởng"
-                android:textSize="24dp"
-                android:textStyle="bold"
                 android:textColor="#0B4A3B"
-                android:padding="10dp"/>
-            <Button
-                android:id="@+id/button_createMilestone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Create Milestone"/>
-<!--            <Button-->
-<!--                android:id="@+id/button_completed_all_habit"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Completed all habit in day"/>-->
+                android:textSize="24dp"
+                android:textStyle="bold" />
+
 
             <LinearLayout
                 android:id="@+id/tabLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/tab_layout_switch"
                 android:orientation="horizontal"
-                android:padding="4dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp">
+                android:padding="4dp">
 
                 <TextView
                     android:id="@+id/tabBadge"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_marginEnd="4dp"
-                    android:paddingHorizontal="24dp"
+                    android:background="@drawable/tab_selected_background"
                     android:gravity="center"
+                    android:onClick="onTabClicked"
+                    android:paddingHorizontal="24dp"
                     android:text="Huy hiệu"
                     android:textColor="#000000"
                     android:textStyle="bold"
-                    android:background="@drawable/tab_selected_background"
-                    android:onClick="onTabClicked"
                     tools:ignore="OnClick" />
 
                 <TextView
                     android:id="@+id/tabHistory"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
-                    android:paddingHorizontal="24dp"
-                    android:gravity="center"
-                    android:text="Lịch sử"
                     android:background="@drawable/tab_unselected_background"
-                    android:textColor="#FFFFFF"
+                    android:gravity="center"
                     android:onClick="onTabClicked"
+                    android:paddingHorizontal="24dp"
+                    android:text="Lịch sử"
+                    android:textColor="#FFFFFF"
                     tools:ignore="OnClick" />
             </LinearLayout>
 
@@ -80,12 +75,11 @@
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_constraintTop_toBottomOf="@id/tabLayout"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/tabLayout" />
         </LinearLayout>
-
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/coordinatorLayout"
@@ -125,7 +119,8 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/icon_home" />
+                            app:srcCompat="@drawable/icon_home"
+                            app:tint="@color/ic_gray"/>
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -141,7 +136,8 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/icon_thongke" />
+                            app:srcCompat="@drawable/icon_thongke"
+                            app:tint="@color/ic_gray"/>
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -179,7 +175,8 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/icon_caidat"/>
+                            app:srcCompat="@drawable/icon_caidat"
+                            app:tint="@color/ic_gray"/>
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </LinearLayout>
             </com.google.android.material.bottomappbar.BottomAppBar>

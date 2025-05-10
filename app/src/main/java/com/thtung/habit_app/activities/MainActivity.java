@@ -138,12 +138,10 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         });
         binding.imgIcThongke.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, StatisticActivity.class));
-            finish();
         });
         // Sang trang huy hiệu
         binding.imgIcRank.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, BadgeActivity.class));
-            finish();
         });
 
         // Sang trang cài đặt
@@ -151,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-                finish();
             }
         });
 

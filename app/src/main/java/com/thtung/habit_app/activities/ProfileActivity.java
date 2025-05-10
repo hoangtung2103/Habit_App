@@ -26,9 +26,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.thtung.habit_app.R;
 import com.thtung.habit_app.databinding.ActivityProfileBinding;
 import com.thtung.habit_app.databinding.DialogResetPasswordBinding;
 import com.thtung.habit_app.databinding.DialogRevisePersonalInfoBinding;
+import com.thtung.habit_app.firebase.FirestoreManager;
 import com.thtung.habit_app.model.User;
 import com.thtung.habit_app.repository.UserDataCallback;
 import com.thtung.habit_app.repository.UserRepository;
@@ -51,6 +53,8 @@ public class ProfileActivity extends AppCompatActivity implements UserDataCallba
     private FirebaseUser firebaseUser;
     private User user;
 
+    private FirestoreManager firestoreManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -58,7 +62,7 @@ public class ProfileActivity extends AppCompatActivity implements UserDataCallba
 
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        firestoreManager = new FirestoreManager();
         userRepository = UserRepository.getInstance();
 
         showLoading(true);
@@ -92,6 +96,7 @@ public class ProfileActivity extends AppCompatActivity implements UserDataCallba
                     }
                 }
         );
+
 
         binding.buttonUploadProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +139,18 @@ public class ProfileActivity extends AppCompatActivity implements UserDataCallba
                         .into(binding.avatarImage);
                 this.firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 this.firestoredb = FirebaseFirestore.getInstance();
+                firestoreManager.getUser(firebaseUser.getUid(), new FirestoreManager.UserCallback() {
+                    @Override
+                    public void onUserLoaded(User nguoiDung) {
+                        binding.username2Display.setText(nguoiDung.getName());
+                        binding.dobDisplay.setText(nguoiDung.getBirthdate());
+                        binding.emailDisplay.setText(nguoiDung.getEmail());
+                    }
+
+                    public void onError(String errorMessage) {
+                        Toast.makeText(ProfileActivity.this, "Lỗi :" + errorMessage, Toast.LENGTH_SHORT).show();
+                    }
+                });
                 binding.setUser(user);
             }
         });

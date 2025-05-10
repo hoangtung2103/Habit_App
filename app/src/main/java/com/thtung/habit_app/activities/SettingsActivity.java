@@ -7,17 +7,64 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.thtung.habit_app.R;
+import com.thtung.habit_app.databinding.ActivitySettingsBinding;
+
 
 public class SettingsActivity extends AppCompatActivity {
 
+    private ActivitySettingsBinding binding;
     private LinearLayout accountRow;
-
+    private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        binding = ActivitySettingsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mAuth = FirebaseAuth.getInstance();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        binding.imgIcHome.setOnClickListener(v -> {
+            startActivity(new Intent(SettingsActivity.this, MainActivity.class));
+            finish();
+        });
 
+        binding.imgIcThongke.setOnClickListener(v -> {
+            startActivity(new Intent(SettingsActivity.this, StatisticActivity.class));
+            finish();
+        });
+
+        binding.imgIcRank.setOnClickListener(v -> {
+            startActivity(new Intent(SettingsActivity.this, BadgeActivity.class));
+            finish();
+        });
+
+        binding.icAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SettingsActivity.this, AddHabitActivity.class));
+            }
+        });
+
+        binding.dangxuat.setOnClickListener(v -> {
+            mAuth.signOut();
+
+            mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
+
+            });
+
+            startActivity(new Intent(SettingsActivity.this, LoginActivity.class));
+            finish();
+
+        });
         // Ánh xạ dòng "Tài khoản"
         accountRow = findViewById(R.id.accountRow);
 
