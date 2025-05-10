@@ -14,6 +14,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.thtung.habit_app.R;
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private FirestoreManager firestoreManager;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
+    private GoogleSignInClient mGoogleSignInClient;
     private WeekAdapter adapterWeek;
     private List<DayModel> dayList;
     private UserPointRepository userPointRepository;
@@ -70,11 +74,16 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                     .apply();
         }
 
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         if (currentUserId != null && !currentUserId.isEmpty()) {
             initializeViewModel(currentUserId);
         } else {
-            Log.e(TAG, "Error: currentUser  Id is null or empty after auth check.");
+            Log.e(TAG, "Error: currentUserId is null or empty after auth check.");
             Toast.makeText(this, "Lỗi xác thực người dùng.", Toast.LENGTH_SHORT).show();
             return;
         }
