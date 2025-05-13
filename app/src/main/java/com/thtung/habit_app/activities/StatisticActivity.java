@@ -2,7 +2,7 @@ package com.thtung.habit_app.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ProgressBar;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -11,28 +11,35 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.thtung.habit_app.R;
 import com.thtung.habit_app.adapters.BarChartAdapter;
-import com.thtung.habit_app.adapters.StatisticAdapter;
 import com.thtung.habit_app.model.BarChartData;
 import com.thtung.habit_app.model.Statistic;
+import com.thtung.habit_app.utils.ProgressCircleView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 public class StatisticActivity extends AppCompatActivity {
     private FirebaseFirestore db;
+    private static final String TAG = "StatisticActivity";
     private FirebaseAuth mAuth;
     private FirebaseUser user;
-    private TextView tvTotalCompleted, tvCurrentStreak, tvUncompleted;
-    private TextView tvProgressPercent, tvProgressMessage;
-    private TextView tvEnergy, tvHeart;
-    private RecyclerView rvHabitStats, rvBarChart;
-    private ProgressBar progressCircle;
+    private TextView tvTotalTasks, tvTotalCompleted, tvTotalUncompleted;
+    private TextView tvCompleted, tvUncompletedDetail; // Thêm TextView cho "Hoàn thành" và "Thất bại"
+    private RecyclerView rvBarChart;
+    private ProgressCircleView pieChart;
+    private int progressPercent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,16 +50,13 @@ public class StatisticActivity extends AppCompatActivity {
         user = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
+        tvTotalTasks = findViewById(R.id.tv_total_tasks);
         tvTotalCompleted = findViewById(R.id.tv_total_completed);
-        tvCurrentStreak = findViewById(R.id.tv_current_streak);
-        tvUncompleted = findViewById(R.id.tv_uncompleted);
-        rvHabitStats = findViewById(R.id.rv_habit_stats);
+        tvTotalUncompleted = findViewById(R.id.tv_total_uncompleted);
+        tvCompleted = findViewById(R.id.txt_hoanthanh); // TextView "Hoàn thành"
+        tvUncompletedDetail = findViewById(R.id.txt_khonghoanthanh); // TextView "Thất bại"
         rvBarChart = findViewById(R.id.rv_bar_chart);
-        tvProgressPercent = findViewById(R.id.tv_progress_percent);
-        tvProgressMessage = findViewById(R.id.tv_progress_message);
-        tvEnergy = findViewById(R.id.tv_energy);
-        tvHeart = findViewById(R.id.tv_heart);
-        progressCircle = findViewById(R.id.progress_circle);
+        pieChart = findViewById(R.id.pieChart);
 
         // Thiết lập RecyclerView cho biểu đồ cột
         rvBarChart.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -89,71 +93,72 @@ public class StatisticActivity extends AppCompatActivity {
     }
 
     private void loadStatistics(String userId) {
-        // Truy vấn tổng số nhiệm vụ từ Statistic
+        // Truy vấn tất cả Statistic có cùng user_id
         db.collection("Statistic")
                 .whereEqualTo("user_id", userId)
                 .get()
                 .addOnSuccessListener(statisticSnapshots -> {
-                    List<Statistic> stats = new ArrayList<>();
-                    long totalTasks = statisticSnapshots.size(); // Tổng số nhiệm vụ
+                    long totalTasks = 0;
+                    long completedTasks = 0;
 
+                    // Tính tổng last_completed và total_completed
                     for (QueryDocumentSnapshot document : statisticSnapshots) {
                         Statistic stat = document.toObject(Statistic.class);
-                        stats.add(stat);
+                        Long lastCompleted = stat.getLast_completed();
+                        Long totalCompleted = stat.getTotal_completed();
+
+                        if (lastCompleted != null) {
+                            totalTasks += lastCompleted;
+                        }
+                        if (totalCompleted != null) {
+                            completedTasks += totalCompleted;
+                        }
                     }
 
-                    // Truy vấn số nhiệm vụ đã hoàn thành từ habit_log
-                    db.collection("habit_log")
-                            .whereEqualTo("user_id", userId)
-                            .whereEqualTo("completed", true)
-                            .get()
-                            .addOnSuccessListener(habitLogSnapshots -> {
-                                long completedTasks = habitLogSnapshots.size(); // Số nhiệm vụ đã hoàn thành
-                                long uncompletedTasks = totalTasks - completedTasks; // Số chưa hoàn thành
+                    Log.d(TAG, "Total Tasks: " + totalTasks);
+                    Log.d(TAG, "Completed Tasks: " + completedTasks);
 
-                                // Tính phần trăm tiến độ tổng
-                                int progressPercent = totalTasks > 0 ? (int) ((completedTasks * 100) / totalTasks) : 0;
+                    long uncompletedTasks = Math.max(0, totalTasks - completedTasks); // Đảm bảo không âm
 
-                                // Cập nhật giao diện
-                                tvTotalCompleted.setText(String.valueOf(totalTasks));
-                                tvCurrentStreak.setText(String.valueOf(completedTasks));
-                                tvUncompleted.setText(String.valueOf(uncompletedTasks));
-                                tvProgressPercent.setText(progressPercent + "%");
-                                tvProgressMessage.setText("Bạn đã hoàn thành " + progressPercent + " %");
-                                progressCircle.setProgress(progressPercent);
+                    // Tính phần trăm tiến độ tổng
+                    int progressPercent = totalTasks > 0 ? (int) ((completedTasks * 100) / totalTasks) : 0;
 
-                                // Truy vấn giá trị streak từ UserStreak
-                                db.collection("UserStreak")
-                                        .whereEqualTo("user_id", userId)
-                                        .limit(1)
-                                        .get()
-                                        .addOnSuccessListener(userStreakSnapshots -> {
-                                            long streak = 0;
-                                            if (!userStreakSnapshots.isEmpty()) {
-                                                Long streakValue = userStreakSnapshots.getDocuments().get(0).getLong("streak");
-                                                streak = streakValue != null ? streakValue : 0;
-                                            }
-                                            tvEnergy.setText(String.valueOf(streak));
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Toast.makeText(this, "Lỗi tải streak: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            tvEnergy.setText("0");
-                                        });
+                    // Cập nhật giao diện
+                    tvTotalTasks.setText(String.valueOf(totalTasks));
+                    tvTotalCompleted.setText(String.valueOf(completedTasks));
+                    tvTotalUncompleted.setText(String.valueOf(uncompletedTasks));
+                    tvCompleted.setText(String.valueOf(completedTasks));
+                    tvUncompletedDetail.setText(String.valueOf(uncompletedTasks));
 
-                                // Giả lập giá trị tv_heart
-                                tvHeart.setText("40");
-
-                                StatisticAdapter adapter = new StatisticAdapter(stats);
-                                rvHabitStats.setLayoutManager(new LinearLayoutManager(this));
-                                rvHabitStats.setAdapter(adapter);
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(this, "Lỗi tải habit_log: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            });
+                    // Cập nhật ProgressCircleView
+                    pieChart.setPercent(progressPercent); // Thay đổi nếu cần
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Lỗi tải thống kê: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error loading Statistic: " + e.getMessage());
+                    Toast.makeText(this, "Lỗi tải Statistic: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private long calculateDaysDifference(QuerySnapshot habitSnapshots) {
+        long totalDays = 0;
+        Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("UTC+7"));
+        currentDate.setTime(new Date()); // Hiện tại: May 13, 2025, 06:12 PM +07
+
+        for (QueryDocumentSnapshot document : habitSnapshots) {
+            try {
+                Timestamp startAt = document.getTimestamp("start_at");
+                if (startAt != null) {
+                    Date startDate = startAt.toDate();
+                    long diffInMillies = currentDate.getTimeInMillis() - startDate.getTime();
+                    long diffDays = TimeUnit.MILLISECONDS.toDays(diffInMillies) + 1; // +1 để bao gồm ngày đầu tiên
+                    totalDays += Math.max(diffDays, 0); // Đảm bảo không âm
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return totalDays;
     }
 
     private void loadBarChartData(String userId) {
@@ -165,11 +170,12 @@ public class StatisticActivity extends AppCompatActivity {
                     List<BarChartData> barChartDataList = new ArrayList<>();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Statistic stat = document.toObject(Statistic.class);
-                        String habitId = stat.getHabit_id();
-                        long totalCompleted = stat.getTotal_completed() != null ? stat.getTotal_completed() : 0;
-                        long lastCompleted = stat.getLast_completed() != null ? stat.getLast_completed() : 1;
+                        String habitId = stat.getHabit_id(); // Điều chỉnh getter
+                        Long totalCompleted = stat.getTotal_completed(); // Điều chỉnh getter
+                        Long lastCompleted = stat.getLast_completed(); // Điều chỉnh getter
 
-                        double successPercent = (lastCompleted > 0) ? (totalCompleted * 100.0 / lastCompleted) : 0;
+                        double successPercent = (lastCompleted != null && lastCompleted > 0)
+                                ? (totalCompleted != null ? (totalCompleted * 100.0 / lastCompleted) : 0) : 0;
                         barChartDataList.add(new BarChartData(habitId, successPercent));
                     }
 
