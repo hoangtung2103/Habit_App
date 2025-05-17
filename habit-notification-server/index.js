@@ -95,7 +95,7 @@ async function sendHabitReminders() {
               body: `Đến giờ thực hiện thói quen: ${habit.name}`
             }
           });
-          console.log(`📤 Sent reminder to ${userId} for habit "${habit.name}" at ${currentTime}`);
+          console.log(`📤 Gửi nhắc nhở đến ${userId} for thói quen "${habit.name}" vào lúc ${currentTime}`);
         } catch (error) {
           console.error(`Failed to send notification to ${userId} for habit "${habit.name}":`, error.message);
         }

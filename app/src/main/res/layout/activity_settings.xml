@@ -176,9 +176,16 @@
                     android:background="@color/divider_color" />
 
                 <Button
+                    android:id="@+id/Feedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Feedback"/>
+
+                <Button
                     android:id="@+id/dangxuat"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"/>
+                    android:layout_height="50dp"
+                    android:text="ĐĂNG XUẤT"/>
 
 
             </LinearLayout>

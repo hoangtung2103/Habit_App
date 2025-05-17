@@ -15,6 +15,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.thtung.habit_app.activities.AddHabitActivity;
+import com.thtung.habit_app.model.Feedback;
 import com.thtung.habit_app.model.Habit;
 import com.thtung.habit_app.model.HabitLog;
 import com.thtung.habit_app.model.HabitNote;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class FirestoreManager {
     private FirebaseFirestore db;
@@ -545,6 +547,52 @@ public class FirestoreManager {
             return db.collection("UserStreak").document(); // Trả về ref mới
         }
     }
+
+    // Lấy Feedback
+    public void getFeedback(String userId, Consumer<Feedback> onFeedbackLoaded, Runnable onNoFeedback) {
+        db.collection("Feedback")
+                .whereEqualTo("user_id", userId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        Feedback feedback = querySnapshot.getDocuments().get(0).toObject(Feedback.class);
+                        feedback.setId(querySnapshot.getDocuments().get(0).getId());
+                        onFeedbackLoaded.accept(feedback);
+                    } else {
+                        onNoFeedback.run();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirestoreManager", "Error getting feedback: " + e.getMessage());
+                });
+    }
+
+    // Lưu hoặc cập nhật Feedback
+    public void saveOrUpdateFeedback(String userId, String content, int rating, String existingFeedbackId, Runnable onSuccess) {
+        Map<String, Object> feedbackData = new HashMap<>();
+        feedbackData.put("user_id", userId);
+        feedbackData.put("content", content);
+        feedbackData.put("rating", rating);
+        feedbackData.put("create_at", Timestamp.now());
+        if(existingFeedbackId != null) { // UPDATE
+            db.collection("Feedback")
+                    .document(existingFeedbackId)
+                    .set(feedbackData)
+                    .addOnSuccessListener(aVoid -> onSuccess.run())
+                    .addOnFailureListener(e -> {
+                        Log.e("FirestoreManager", "Error updating feedback: " + e.getMessage());
+                    });
+        } else { // CREATE
+            db.collection("Feedback")
+                    .add(feedbackData)
+                    .addOnSuccessListener(documentReference -> onSuccess.run())
+                    .addOnFailureListener(e -> {
+                        Log.e("FirestoreManager", "Error creating feedback: " + e.getMessage());
+                    });
+        }
+    }
+
 
 
 
