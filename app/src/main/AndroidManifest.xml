@@ -16,7 +16,7 @@
             android:exported="false" />
         <activity android:name=".activities.BadgeActivity"
             android:exported="false" />
-        <activity android:name=".activities.NoteActivity"
+        <activity android:name=".activities.HabitNoteActivity"
             android:exported="false" />
         <activity android:name=".activities.AddNoteActivity"
             android:exported="false" />

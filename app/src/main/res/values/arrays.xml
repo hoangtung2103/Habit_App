@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="duration_options">
-        <item>30 ngày trước</item>
-        <item>60 ngày trước</item>
-        <item>90 ngày trước</item>
+    <string-array name="note_filter_options">
+        <item>Tất cả</item>
+        <item>15 ngày</item>
+        <item>7 ngày</item>
     </string-array>
 </resources>

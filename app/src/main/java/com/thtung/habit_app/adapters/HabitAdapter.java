@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -13,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.thtung.habit_app.activities.HabitDetailActivity;
-import com.thtung.habit_app.activities.NoteActivity;
+import com.thtung.habit_app.activities.HabitNoteActivity;
 import com.thtung.habit_app.databinding.ItemHabitBinding;
 import com.thtung.habit_app.firebase.FirestoreManager;
 import com.thtung.habit_app.model.Habit;
@@ -161,7 +160,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         });
 
         holder.binding.noteBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(context, NoteActivity.class);
+            Intent intent = new Intent(context, HabitNoteActivity.class);
             intent.putExtra("habitId", habit.getId());
             intent.putExtra("habitName", habit.getName());
             context.startActivity(intent);
