@@ -54,6 +54,11 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+
+        binding.Feedback.setOnClickListener(v -> {
+            startActivity(new Intent(SettingsActivity.this, FeedbackActivity.class));
+        });
+
         binding.dangxuat.setOnClickListener(v -> {
             mAuth.signOut();
 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="24dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_advice_popup"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tvAdviceTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AI Lời khuyên"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/tvAdviceContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đang phân tích..."
+        android:textSize="16sp"
+        android:textColor="@color/black" />
+
+</LinearLayout>

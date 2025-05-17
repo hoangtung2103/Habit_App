@@ -3,6 +3,7 @@
 /.idea
 app/.idea
 gradle
+habit-notification-server/serviceAccountKey.json
 /local.properties
 /.idea/caches
 /.idea/libraries

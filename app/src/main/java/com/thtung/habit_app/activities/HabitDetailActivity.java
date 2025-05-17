@@ -2,8 +2,10 @@ package com.thtung.habit_app.activities;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -33,6 +35,11 @@ import com.thtung.habit_app.model.HabitLog;
 import com.thtung.habit_app.model.Statistic;
 import com.thtung.habit_app.utils.ProgressCircleView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -43,6 +50,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class HabitDetailActivity extends AppCompatActivity {
 
@@ -112,7 +127,8 @@ public class HabitDetailActivity extends AppCompatActivity {
                 Log.d("Phan Tram", String.valueOf(phanTram));
                 progressCircleView.setPercent((float) phanTram);
                 binding.goiY.setOnClickListener(v -> {
-                    setupAdviceAndReview(phanTram);
+                    //setupAdviceAndReview(phanTram);
+                    getAIAdviceFromOpenRouter(statistic);
                 });
             }
 
@@ -124,6 +140,95 @@ public class HabitDetailActivity extends AppCompatActivity {
     }
 
 
+
+    private void getAIAdviceFromOpenRouter(Statistic stat) {
+        String apiKey = "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"; // <-- Thay bằng API key của bạn từ OpenRouter
+
+        // Tạo prompt từ thông tin của thói quen
+        String prompt = "Đây là dữ liệu thống kê của một thói quen:\n" +
+                "- Số ngày đã hoàn thành: " + stat.getTotal_completed() + "\n" +
+                "- Tổng số ngày đã qua: " + stat.getLast_completed() + "\n" +
+                "- Chuỗi ngày hoàn thành liên tiếp hiện tại: " + stat.getStreak() + "\n" +
+                "- Chuỗi dài nhất: " + stat.getMax_streak() + "\n" +
+                "Dựa vào các thông tin trên, hãy đưa ra một lời khuyên hoặc nhận xét ngắn gọn bằng tiếng Việt giúp người dùng cải thiện hoặc duy trì thói quen.";
+
+        // Tạo một OkHttpClient để gửi yêu cầu
+        OkHttpClient client = new OkHttpClient();
+
+        // Xây dựng JSON request body
+        JSONObject json = new JSONObject();
+        try {
+            json.put("model", "mistralai/mixtral-8x7b-instruct"); // Sử dụng mô hình OpenRouter (mistralai/mixtral-8x7b-instruct)
+            JSONArray messages = new JSONArray();
+            JSONObject userMessage = new JSONObject();
+            userMessage.put("role", "user");
+            userMessage.put("content", prompt); // Đưa prompt vào nội dung
+            messages.put(userMessage);
+            json.put("messages", messages);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // Tạo request body
+        RequestBody body = RequestBody.create(json.toString(), MediaType.get("application/json; charset=utf-8"));
+
+        // Tạo request gửi đến OpenRouter API
+        Request request = new Request.Builder()
+                .url("https://openrouter.ai/api/v1/chat/completions")
+                .header("Authorization", "Bearer " + apiKey) // Thêm Bearer token
+                .post(body)
+                .build();
+
+        // Gửi yêu cầu và xử lý phản hồi
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> showAdvicePopup("Lỗi kết nối đến OpenRouter: " + e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    String errorBody = response.body() != null ? response.body().string() : "Không có phản hồi";
+                    runOnUiThread(() -> showAdvicePopup("Lỗi AI: " + response.code() + "\n" + errorBody));
+                    return;
+                }
+
+                String responseBody = response.body().string();
+
+                try {
+                    // Xử lý phản hồi JSON trả về từ OpenRouter API
+                    JSONObject jsonObject = new JSONObject(responseBody);
+                    JSONArray choices = jsonObject.getJSONArray("choices");
+                    String content = choices.getJSONObject(0)
+                            .getJSONObject("message")
+                            .getString("content");
+
+                    // Hiển thị lời khuyên hoặc nhận xét từ AI
+                    runOnUiThread(() -> showAdvicePopup(content.trim()));
+                } catch (JSONException e) {
+                    runOnUiThread(() -> showAdvicePopup("Lỗi phân tích dữ liệu trả về."));
+                }
+            }
+        });
+    }
+
+
+
+
+    private void showAdvicePopup(String advice) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.popup_advice, null);
+        builder.setView(dialogView);
+
+        TextView tvAdvice = dialogView.findViewById(R.id.tvAdviceContent);
+        tvAdvice.setText(advice);
+
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+    }
 
 
     private void setupAdviceAndReview(int performance) {

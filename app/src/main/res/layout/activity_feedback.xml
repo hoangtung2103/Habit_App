@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.FeedbackActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đánh giá ứng dụng"
+            android:fontFamily="@font/k2d"
+            android:textColor="@color/black"
+            android:layout_marginTop="50dp"
+            android:textSize="23sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/star1"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_star_border"
+                android:contentDescription="Star 1"
+                android:layout_marginEnd="4dp"/>
+
+            <ImageView
+                android:id="@+id/star2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_star_border"
+                android:contentDescription="Star 2"
+                android:layout_marginEnd="4dp"/>
+
+            <ImageView
+                android:id="@+id/star3"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_star_border"
+                android:contentDescription="Star 3"
+                android:layout_marginEnd="4dp"/>
+
+            <ImageView
+                android:id="@+id/star4"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_star_border"
+                android:contentDescription="Star 4"
+                android:layout_marginEnd="4dp"/>
+
+            <ImageView
+                android:id="@+id/star5"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_star_border"
+                android:contentDescription="Star 5"/>
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/reviewText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Viết đánh giá của bạn..."
+            android:minHeight="120dp"
+            android:gravity="top"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/edit_text_border"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:text="Hủy"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
+                app:cornerRadius="12dp"
+                app:backgroundTint="#FF4444"
+                app:rippleColor="#80FFFFFF"
+                android:textColor="#FFFFFF"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:layout_marginEnd="16dp"
+                style="@style/Widget.MaterialComponents.Button"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/saveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:text="Lưu"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
+                app:cornerRadius="12dp"
+                app:backgroundTint="#4CAF50"
+                app:rippleColor="#80FFFFFF"
+                android:textColor="#FFFFFF"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                style="@style/Widget.MaterialComponents.Button"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

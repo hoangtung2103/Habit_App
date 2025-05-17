@@ -68,4 +68,6 @@ dependencies {
     implementation("com.facebook.android:facebook-android-sdk:12.0.0")
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-messaging")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("org.json:json:20230227")
 }
