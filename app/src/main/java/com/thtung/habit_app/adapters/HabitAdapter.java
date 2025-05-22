@@ -122,7 +122,13 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
                                     @Override
                                     public void onSuccess() {
-                                        Toast.makeText(context, "Hoàn thành thói quen thành công, + 5 điểm!", Toast.LENGTH_SHORT).show();
+                                        Toast toast = Toast.makeText(context, "Hoàn thành thói quen thành công, + 5 điểm!", Toast.LENGTH_SHORT);
+                                        toast.show();
+                                        // Hủy Toast sau 1000ms (1 giây)
+                                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
+                                                () -> toast.cancel(),
+                                                500 // Thời gian hiển thị (ms)
+                                        );
                                         Log.d("HabitAdapter", "Points incremented successfully for " + habit.getName());
                                     }
 

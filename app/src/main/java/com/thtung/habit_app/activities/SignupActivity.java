@@ -51,7 +51,7 @@ public class SignupActivity extends AppCompatActivity {
         String name = binding.namesignupEdt.getText().toString();
 
         if(TextUtils.isEmpty(email) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(name)) {
-            Toast.makeText(this, "All fields are required!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Hãy điền đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
             return;
         }
         mAuth.createUserWithEmailAndPassword(email, pass)
@@ -65,6 +65,7 @@ public class SignupActivity extends AppCompatActivity {
                             startActivity(new Intent(SignupActivity.this, LoginActivity.class));
                             finish();
                         }
+                        Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(this, "Đăng ký thất bại: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
@@ -84,7 +85,6 @@ public class SignupActivity extends AppCompatActivity {
         db.collection("User").document(uid)
                 .set(userMap)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(SignupActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Lỗi lưu dữ liệu", Toast.LENGTH_SHORT).show());
     }

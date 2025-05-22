@@ -63,11 +63,11 @@ public class SettingsActivity extends AppCompatActivity {
             mAuth.signOut();
 
             mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
-
+                Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
             });
-
-            startActivity(new Intent(SettingsActivity.this, LoginActivity.class));
-            finish();
 
         });
         // Ánh xạ dòng "Tài khoản"

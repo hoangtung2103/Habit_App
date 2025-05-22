@@ -1,0 +1,109 @@
+{
+  "rules": [
+    {
+      "condition": {
+        "streak": { "min": 10 },
+        "completion_rate": { "min": 0.9 }
+      },
+      "advice": "Thật xuất sắc! Bạn duy trì chuỗi hơn 10 ngày với tỷ lệ hoàn thành gần hoàn hảo. Hãy thử đặt mục tiêu cao hơn, như tăng thời gian thực hiện thói quen thêm 10% hoặc chia sẻ thành công của bạn để truyền cảm hứng!"
+    },
+    {
+      "condition": {
+        "streak": { "min": 7, "max": 9 },
+        "completion_rate": { "min": 0.8 }
+      },
+      "advice": "Chúc mừng! Chuỗi 7-9 ngày của bạn rất ấn tượng. Để kéo dài chuỗi, hãy đảm bảo thực hiện thói quen vào cùng giờ mỗi ngày và ghi lại tiến độ để duy trì động lực."
+    },
+    {
+      "condition": {
+        "streak": { "min": 4, "max": 6 },
+        "completion_rate": { "min": 0.7, "max": 0.9 }
+      },
+      "advice": "Bạn đang xây dựng thói quen tốt với chuỗi 4-6 ngày! Hãy thử thêm một bước nhỏ, như tăng tần suất thực hiện 1 ngày/tuần hoặc chuẩn bị môi trường thuận lợi để dễ dàng tiếp tục."
+    },
+    {
+      "condition": {
+        "streak": { "min": 1, "max": 3 },
+        "completion_rate": { "min": 0.5, "max": 0.7 }
+      },
+      "advice": "Bạn đang bắt đầu tốt! Để duy trì chuỗi, hãy đặt lời nhắc trên điện thoại và thực hiện thói quen vào một thời điểm cố định. Một bước nhỏ mỗi ngày sẽ dẫn bạn đi xa!"
+    },
+    {
+      "condition": {
+        "streak": { "max": 0 },
+        "completion_rate": { "max": 0.3 }
+      },
+      "advice": "Có vẻ bạn đang gặp khó khăn trong việc bắt đầu. Hãy thử thực hiện thói quen chỉ trong 2 phút hôm nay, ví dụ: làm vài động tác giãn cơ hoặc viết một câu nhật ký. Bắt đầu nhỏ là chìa khóa!"
+    },
+    {
+      "condition": {
+        "total_completed": { "min": 15 },
+        "streak": { "max": 1 }
+      },
+      "advice": "Bạn đã hoàn thành nhiều lần nhưng chuỗi hiện tại bị gián đoạn. Hãy bắt đầu lại với một mục tiêu nhỏ, như thực hiện thói quen 3 ngày liên tiếp. Sử dụng ứng dụng lịch để nhắc nhở!"
+    },
+    {
+      "condition": {
+        "total_completed": { "min": 5, "max": 10 },
+        "completion_rate": { "max": 0.4 }
+      },
+      "advice": "Tỷ lệ hoàn thành của bạn hơi thấp. Hãy thử chia thói quen thành các bước nhỏ hơn, ví dụ: thay vì 30 phút, hãy bắt đầu với 5 phút mỗi ngày. Ghi lại lý do bạn muốn duy trì thói quen để tăng động lực!"
+    },
+    {
+      "condition": {
+        "max_streak": { "min": 10 },
+        "streak": { "max": 2 }
+      },
+      "advice": "Bạn từng có chuỗi dài ấn tượng! Để lấy lại phong độ, hãy đặt mục tiêu đạt 5 ngày liên tiếp. Thử thưởng cho bản thân một món quà nhỏ sau mỗi lần hoàn thành để giữ hứng thú."
+    },
+    {
+      "condition": {
+        "max_streak": { "min": 5, "max": 9 },
+        "streak": { "min": 1, "max": 3 }
+      },
+      "advice": "Bạn đã từng có chuỗi tốt và đang bắt đầu lại. Hãy tập trung vào 3 ngày tiếp theo để xây dựng lại chuỗi. Đặt một lời nhắc cố định và chuẩn bị trước các công cụ cần thiết để dễ dàng thực hiện."
+    },
+    {
+      "condition": {
+        "total_completed": { "min": 20 },
+        "completion_rate": { "max": 0.5 }
+      },
+      "advice": "Bạn đã thực hiện thói quen nhiều lần nhưng tỷ lệ hoàn thành chưa cao. Hãy xem lại lịch trình để tìm thời điểm tốt nhất. Thử thực hiện thói quen ngay sau một hoạt động quen thuộc, như sau khi ăn sáng."
+    },
+    {
+      "condition": {
+        "streak": { "min": 3, "max": 5 },
+        "completion_rate": { "min": 0.4, "max": 0.6 }
+      },
+      "advice": "Chuỗi hiện tại của bạn khá ổn, nhưng tỷ lệ hoàn thành có thể cải thiện. Hãy thử tăng tần suất lên 1-2 ngày/tuần và ghi chú lại cảm giác sau mỗi lần hoàn thành để duy trì động lực."
+    },
+    {
+      "condition": {
+        "total_completed": { "min": 10 },
+        "completion_rate": { "min": 0.6, "max": 0.8 }
+      },
+      "advice": "Bạn đang đi đúng hướng với tỷ lệ hoàn thành tốt. Để cải thiện, hãy thử thêm một ngày thực hiện mỗi tuần hoặc tăng thời gian thực hiện thói quen lên 5 phút. Ghi lại tiến độ để thấy sự tiến bộ!"
+    },
+    {
+      "condition": {
+        "streak": { "min": 0, "max": 1 },
+        "total_completed": { "min": 3, "max": 7 }
+      },
+      "advice": "Bạn đã thử thói quen vài lần nhưng chưa tạo được chuỗi dài. Hãy bắt đầu với mục tiêu 2 ngày liên tiếp và đặt lời nhắc cố định. Một môi trường gọn gàng sẽ giúp bạn dễ thực hiện hơn!"
+    },
+    {
+      "condition": {
+        "max_streak": { "min": 3, "max": 5 },
+        "completion_rate": { "max": 0.5 }
+      },
+      "advice": "Bạn từng có chuỗi ngắn, nhưng tỷ lệ hoàn thành đang thấp. Hãy thử giảm độ khó của thói quen, ví dụ: thay vì 1 giờ, hãy làm 10 phút. Ghi lại mục tiêu nhỏ để theo dõi tiến độ!"
+    },
+    {
+      "condition": {
+        "total_completed": { "min": 25 },
+        "streak": { "max": 3 }
+      },
+      "advice": "Bạn đã thực hiện thói quen rất nhiều lần, nhưng chuỗi hiện tại còn ngắn. Hãy đặt mục tiêu đạt chuỗi 5 ngày bằng cách thực hiện thói quen ngay sau một thói quen khác, như sau khi uống cà phê sáng."
+    }
+  ]
+}

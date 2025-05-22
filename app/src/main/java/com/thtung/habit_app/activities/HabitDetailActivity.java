@@ -31,6 +31,7 @@ import com.thtung.habit_app.R;
 import com.thtung.habit_app.databinding.ActivityHabitDetailBinding;
 import com.thtung.habit_app.databinding.CalendarDayViewBinding;
 import com.thtung.habit_app.firebase.FirestoreManager;
+import com.thtung.habit_app.model.HabitAdviceModel;
 import com.thtung.habit_app.model.HabitLog;
 import com.thtung.habit_app.model.Statistic;
 import com.thtung.habit_app.utils.ProgressCircleView;
@@ -66,7 +67,7 @@ public class HabitDetailActivity extends AppCompatActivity {
     private String habitName;
     private Set<LocalDate> completedDates;
     private YearMonth currentViewedMonth;
-
+    private HabitAdviceModel adviceModel;
     private int phanTram;
 
     @Override
@@ -127,8 +128,9 @@ public class HabitDetailActivity extends AppCompatActivity {
                 Log.d("Phan Tram", String.valueOf(phanTram));
                 progressCircleView.setPercent((float) phanTram);
                 binding.goiY.setOnClickListener(v -> {
-                    //setupAdviceAndReview(phanTram);
-                    getAIAdviceFromOpenRouter(statistic);
+                    adviceModel = new HabitAdviceModel(HabitDetailActivity.this);
+                    String advice = adviceModel.getAdvice(statistic);
+                    showAdvicePopup(advice);
                 });
             }
 
@@ -139,80 +141,6 @@ public class HabitDetailActivity extends AppCompatActivity {
         });
     }
 
-
-
-    private void getAIAdviceFromOpenRouter(Statistic stat) {
-        String apiKey = "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"; // <-- Thay bằng API key của bạn từ OpenRouter
-
-        // Tạo prompt từ thông tin của thói quen
-        String prompt = "Đây là dữ liệu thống kê của một thói quen:\n" +
-                "- Số ngày đã hoàn thành: " + stat.getTotal_completed() + "\n" +
-                "- Tổng số ngày đã qua: " + stat.getLast_completed() + "\n" +
-                "- Chuỗi ngày hoàn thành liên tiếp hiện tại: " + stat.getStreak() + "\n" +
-                "- Chuỗi dài nhất: " + stat.getMax_streak() + "\n" +
-                "Dựa vào các thông tin trên, hãy đưa ra một lời khuyên hoặc nhận xét ngắn gọn bằng tiếng Việt giúp người dùng cải thiện hoặc duy trì thói quen.";
-
-        // Tạo một OkHttpClient để gửi yêu cầu
-        OkHttpClient client = new OkHttpClient();
-
-        // Xây dựng JSON request body
-        JSONObject json = new JSONObject();
-        try {
-            json.put("model", "mistralai/mixtral-8x7b-instruct"); // Sử dụng mô hình OpenRouter (mistralai/mixtral-8x7b-instruct)
-            JSONArray messages = new JSONArray();
-            JSONObject userMessage = new JSONObject();
-            userMessage.put("role", "user");
-            userMessage.put("content", prompt); // Đưa prompt vào nội dung
-            messages.put(userMessage);
-            json.put("messages", messages);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        // Tạo request body
-        RequestBody body = RequestBody.create(json.toString(), MediaType.get("application/json; charset=utf-8"));
-
-        // Tạo request gửi đến OpenRouter API
-        Request request = new Request.Builder()
-                .url("https://openrouter.ai/api/v1/chat/completions")
-                .header("Authorization", "Bearer " + apiKey) // Thêm Bearer token
-                .post(body)
-                .build();
-
-        // Gửi yêu cầu và xử lý phản hồi
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(() -> showAdvicePopup("Lỗi kết nối đến OpenRouter: " + e.getMessage()));
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    String errorBody = response.body() != null ? response.body().string() : "Không có phản hồi";
-                    runOnUiThread(() -> showAdvicePopup("Lỗi AI: " + response.code() + "\n" + errorBody));
-                    return;
-                }
-
-                String responseBody = response.body().string();
-
-                try {
-                    // Xử lý phản hồi JSON trả về từ OpenRouter API
-                    JSONObject jsonObject = new JSONObject(responseBody);
-                    JSONArray choices = jsonObject.getJSONArray("choices");
-                    String content = choices.getJSONObject(0)
-                            .getJSONObject("message")
-                            .getString("content");
-
-                    // Hiển thị lời khuyên hoặc nhận xét từ AI
-                    runOnUiThread(() -> showAdvicePopup(content.trim()));
-                } catch (JSONException e) {
-                    runOnUiThread(() -> showAdvicePopup("Lỗi phân tích dữ liệu trả về."));
-                }
-            }
-        });
-    }
 
 
 
@@ -231,51 +159,6 @@ public class HabitDetailActivity extends AppCompatActivity {
     }
 
 
-    private void setupAdviceAndReview(int performance) {
-        int imageResId;
-        if (performance <= 20) {
-            imageResId = R.drawable.aa20;
-        } else if (performance <= 40) {
-            imageResId = R.drawable.aa40;
-        } else if (performance <= 60) {
-            imageResId = R.drawable.aa60;
-        } else if (performance <= 80) {
-            imageResId = R.drawable.aa80;
-        } else {
-            imageResId = R.drawable.aa100;
-        }
-
-        // Kích thước ảnh
-        int width = (int) (250 * HabitDetailActivity.this.getResources().getDisplayMetrics().density);
-        int height = (int) (350 * HabitDetailActivity.this.getResources().getDisplayMetrics().density);
-
-// Tạo ImageView
-        ImageView imageView = new ImageView(HabitDetailActivity.this);
-        imageView.setImageResource(imageResId);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        imageView.setAdjustViewBounds(true);
-
-// CardView để bo góc
-        CardView cardView = new CardView(HabitDetailActivity.this);
-        cardView.setRadius(24 * HabitDetailActivity.this.getResources().getDisplayMetrics().density);
-        cardView.setCardElevation(0);
-        cardView.setUseCompatPadding(false);
-        cardView.setPreventCornerOverlap(true);
-        cardView.setLayoutParams(new ViewGroup.LayoutParams(width, height));
-        cardView.setContentPadding(0, 0, 0, 0); // quan trọng
-        cardView.addView(imageView);
-
-// Dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(HabitDetailActivity.this, R.style.TransparentDialog);
-        builder.setView(cardView);
-
-        AlertDialog dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.show();
-
-
-
-    }
 
 
     // Hàm cập nhật tiêu đề tháng/năm
