@@ -1,25 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="0dp"
-    android:layout_height="match_parent"
-    android:layout_weight="1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:gravity="center"
-    android:padding="4dp">
+    android:padding="8dp"
+    android:gravity="center">
+
+    <View
+        android:id="@+id/bar_view"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:maxHeight="250dp"
+        android:background="@drawable/bar_bg"/>
 
     <TextView
         android:id="@+id/tv_bar_percent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0%"
-        android:textSize="12sp"
-        android:textColor="@android:color/black" />
+        android:layout_gravity="center"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:textStyle="bold"
+        android:paddingTop="4dp"
+        android:visibility="visible"/>
 
-    <View
-        android:id="@+id/bar_view"
-        android:layout_width="20dp"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@android:color/holo_green_dark" />
+    <TextView
+        android:id="@+id/tv_habit_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:paddingTop="2dp"
+        android:visibility="visible"/>
 
 </LinearLayout>

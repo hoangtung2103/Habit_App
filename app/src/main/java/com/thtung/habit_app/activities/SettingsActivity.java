@@ -55,7 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
 
-        binding.Feedback.setOnClickListener(v -> {
+        binding.feedBack.setOnClickListener(v -> {
             startActivity(new Intent(SettingsActivity.this, FeedbackActivity.class));
         });
 

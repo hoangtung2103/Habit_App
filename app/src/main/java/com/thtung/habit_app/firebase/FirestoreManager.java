@@ -39,7 +39,7 @@ import java.util.function.Consumer;
 
 public class FirestoreManager {
     private FirebaseFirestore db;
-
+    private static final String TAG = "FirestoreManager";
     public FirestoreManager() {
         db = FirebaseFirestore.getInstance();
     }
@@ -373,28 +373,91 @@ public class FirestoreManager {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
-    public void getHabitNotes(String userId, HabitNoteListCallback callback) {
+    public void getHabitNotesByHabitId(String userId, String habitId, HabitNoteListCallback callback) {
         db.collection("HabitNote")
-                .whereEqualTo("user_id", userId)
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("habitId", habitId)
                 .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    ArrayList<HabitNote> noteList = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    ArrayList<HabitNote> notes = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         HabitNote note = doc.toObject(HabitNote.class);
-                        noteList.add(note);
+                        if (note == null) {
+                            Log.w(TAG, "Failed to deserialize HabitNote from document: " + doc.getId());
+                            continue;
+                        }
+                        String docId = doc.getId();
+                        if (docId == null || docId.isEmpty()) {
+                            Log.w(TAG, "Document ID is null or empty for HabitNote");
+                            continue;
+                        }
+                        note.setId(docId);
+                        Log.d(TAG, "Loaded HabitNote with ID: " + docId + ", userId: " + note.getUserId() + ", habitId: " + note.getHabitId());
+                        notes.add(note);
                     }
-                    callback.onHabitNoteListLoaded(noteList);
+                    Log.d(TAG, "Total HabitNotes loaded: " + notes.size());
+                    callback.onHabitNoteListLoaded(notes);
                 })
-                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading HabitNotes: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
     }
     public void deleteHabitNote(String userId, String noteId, NoteDeleteCallback callback) {
-        db.collection("users")
-                .document(userId)
-                .collection("habit_notes")
-                .document(noteId)
-                .delete()
-                .addOnSuccessListener(aVoid -> callback.onNoteDeleted())
-                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+        Log.d(TAG, "Attempting to delete note with noteId: " + noteId + " for userId: " + userId);
+
+        // Kiểm tra tham số đầu vào
+        if (noteId == null || noteId.isEmpty() || userId == null || userId.isEmpty()) {
+            Log.e(TAG, "Invalid parameters: noteId or userId is null or empty");
+            if (callback != null) {
+                callback.onError("Invalid noteId or userId");
+            }
+            return;
+        }
+
+        DocumentReference noteRef = db.collection("HabitNote").document(noteId);
+
+        // Kiểm tra sự tồn tại và quyền truy cập
+        noteRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (!documentSnapshot.exists()) {
+                Log.w(TAG, "Note not found: " + noteId);
+                if (callback != null) {
+                    callback.onError("Ghi chú không tồn tại");
+                }
+                return;
+            }
+
+            String noteUserId = documentSnapshot.getString("userId");
+            if (noteUserId == null || !userId.equals(noteUserId)) {
+                Log.w(TAG, "User " + userId + " does not have permission to delete note: " + noteId);
+                if (callback != null) {
+                    callback.onError("Bạn không có quyền xóa ghi chú này");
+                }
+                return;
+            }
+
+            // Tiến hành xóa
+            noteRef.delete()
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d(TAG, "Note deleted successfully: " + noteId);
+                        if (callback != null) {
+                            callback.onNoteDeleted();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        String errorMessage = "Lỗi khi xóa ghi chú: " + e.getMessage();
+                        Log.e(TAG, errorMessage);
+                        if (callback != null) {
+                            callback.onError(errorMessage);
+                        }
+                    });
+        }).addOnFailureListener(e -> {
+            String errorMessage = "Lỗi khi kiểm tra ghi chú: " + e.getMessage();
+            Log.e(TAG, errorMessage);
+            if (callback != null) {
+                callback.onError(errorMessage);
+            }
+        });
     }
 
     public Task<QuerySnapshot> getHabitsTask(String userId) {

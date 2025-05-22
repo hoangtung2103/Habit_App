@@ -65,6 +65,7 @@ public class HabitDetailActivity extends AppCompatActivity {
     private ActivityHabitDetailBinding binding;
     private String habitId;
     private String habitName;
+    private String userId;
     private Set<LocalDate> completedDates;
     private YearMonth currentViewedMonth;
     private HabitAdviceModel adviceModel;
@@ -79,26 +80,36 @@ public class HabitDetailActivity extends AppCompatActivity {
         FirestoreManager firestoreManager = new FirestoreManager();
         habitId = intent.getStringExtra("habitId");
         habitName = intent.getStringExtra("habitName");
+        userId = intent.getStringExtra("userId");
+
+        Log.d("HabitDetailActivity", "Received data - habitId: " + habitId + ", habitName: " + habitName + ", userId: " + userId);
+
+        if (habitId == null || userId == null) {
+            Log.e("HabitDetailActivity", "Invalid parameters - habitId: " + habitId + ", userId: " + userId);
+            Toast.makeText(this, "Lỗi: Dữ liệu không hợp lệ từ MainActivity", Toast.LENGTH_LONG).show();
+            binding.habitname.setText("Lỗi: Không thể tải dữ liệu");
+            return;
+        }
 
         binding.habitname.setText(habitName);
-        //trở lại
-        binding.back.setOnClickListener(v->{
-            startActivity(new Intent(HabitDetailActivity.this, MainActivity.class));
+        binding.back.setOnClickListener(v -> {
+            Intent backIntent = new Intent(HabitDetailActivity.this, MainActivity.class);
+            backIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(backIntent);
+            finish();
         });
 
-        //Click button sửa thói quen
         binding.editHabit.setOnClickListener(v -> {
             Intent intent1 = new Intent(HabitDetailActivity.this, EditHabitActivity.class);
             intent1.putExtra("habitId", habitId);
             startActivity(intent1);
         });
 
-        //Thêm danh sách ngày hoàn thành để hiển thị lên lịch
         completedDates = new HashSet<>();
         firestoreManager.getDSHabitLog(habitId, new FirestoreManager.GetHabitLogCallback() {
             @Override
             public void onHabitLogLoaded(ArrayList<HabitLog> habitLog) {
-                for(HabitLog log : habitLog) {
+                for (HabitLog log : habitLog) {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
                     LocalDate date = LocalDate.parse(log.getDate(), formatter);
                     completedDates.add(date);
@@ -109,11 +120,10 @@ public class HabitDetailActivity extends AppCompatActivity {
 
             @Override
             public void onError(String errorMessage) {
-
+                Log.e("HabitDetailActivity", "Error loading habit logs: " + errorMessage);
             }
         });
 
-        //Lấy Statistic để hiển thị các thông số
         firestoreManager.getStatistic(habitId, new FirestoreManager.GetStatisticCallback() {
             @Override
             public void onStatisticLoaded(Statistic statistic) {
@@ -123,7 +133,6 @@ public class HabitDetailActivity extends AppCompatActivity {
                 binding.txtStreak.setText(Long.toString(statistic.getStreak()));
                 binding.txtTong.setText(Long.toString(statistic.getLast_completed()));
 
-                // BIỂU ĐỒ
                 ProgressCircleView progressCircleView = binding.pieChart;
                 Log.d("Phan Tram", String.valueOf(phanTram));
                 progressCircleView.setPercent((float) phanTram);
@@ -136,7 +145,7 @@ public class HabitDetailActivity extends AppCompatActivity {
 
             @Override
             public void onError(String errorMessage) {
-
+                Log.e("HabitDetailActivity", "Error loading statistic: " + errorMessage);
             }
         });
     }
@@ -160,8 +169,6 @@ public class HabitDetailActivity extends AppCompatActivity {
 
 
 
-
-    // Hàm cập nhật tiêu đề tháng/năm
     private void updateMonthYearText(YearMonth yearMonth) {
         String monthName = yearMonth.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault());
         String year = String.valueOf(yearMonth.getYear());
@@ -169,19 +176,15 @@ public class HabitDetailActivity extends AppCompatActivity {
         binding.monthYearText.setText(monthName + ", " + year);
     }
 
-
-    // Hàm hiển thị lịch
     private void setupCalendar() {
         YearMonth currentMonth = YearMonth.now();
         currentViewedMonth = currentMonth;
 
-        // SETUP HIỂN THỊ LỊCH
         YearMonth startMonth = currentMonth.minusMonths(2);
         YearMonth endMonth = currentMonth.plusMonths(2);
         binding.calendarView.setup(startMonth, endMonth, DayOfWeek.MONDAY);
         binding.calendarView.scrollToMonth(currentMonth);
 
-        // Cập nhật tiêu đề tháng/năm ban đầu
         updateMonthYearText(currentMonth);
 
         class DayViewContainer extends ViewContainer {
@@ -196,7 +199,7 @@ public class HabitDetailActivity extends AppCompatActivity {
                 LocalDate date = day.getDate();
                 TextView dayText = dayBinding.dayText;
                 dayText.setText(String.valueOf(date.getDayOfMonth()));
-                dayText.setVisibility(View.VISIBLE); // Luôn hiển thị tất cả các ngày
+                dayText.setVisibility(View.VISIBLE);
 
                 YearMonth monthOfDay = YearMonth.from(date);
 
@@ -216,7 +219,18 @@ public class HabitDetailActivity extends AppCompatActivity {
                 }
 
                 dayBinding.getRoot().setOnClickListener(v -> {
-                    Toast.makeText(HabitDetailActivity.this, "Chi tiết ngày: " + date, Toast.LENGTH_SHORT).show();
+                    Log.d("HabitDetailActivity", "Navigating to DailyNoteActivity - habitId: " + habitId + ", habitName: " + habitName + ", userId: " + userId + ", selectedDate: " + date);
+                    if (habitId == null || userId == null) {
+                        Log.e("HabitDetailActivity", "Cannot navigate: habitId or userId is null");
+                        Toast.makeText(HabitDetailActivity.this, "Lỗi: Dữ liệu không hợp lệ", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Intent intent = new Intent(HabitDetailActivity.this, DailyNoteActivity.class);
+                    intent.putExtra("habitId", habitId);
+                    intent.putExtra("habitName", habitName); // Thêm habitName vào Intent
+                    intent.putExtra("userId", userId);
+                    intent.putExtra("selectedDate", date);
+                    startActivity(intent);
                 });
             }
         }
@@ -234,7 +248,6 @@ public class HabitDetailActivity extends AppCompatActivity {
             }
         });
 
-        // Cập nhật tiêu đề tháng/năm khi lướt
         binding.calendarView.setMonthScrollListener(month -> {
             currentViewedMonth = month.getYearMonth();
             updateMonthYearText(currentViewedMonth);
@@ -242,7 +255,6 @@ public class HabitDetailActivity extends AppCompatActivity {
             return null;
         });
     }
-
 
     @Override
     protected void onDestroy() {
