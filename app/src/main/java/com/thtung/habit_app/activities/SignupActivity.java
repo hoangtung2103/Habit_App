@@ -77,8 +77,8 @@ public class SignupActivity extends AppCompatActivity {
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("name", name);
         userMap.put("email", email);
-        userMap.put("avatar", "");
-        userMap.put("birthdate", null);
+        userMap.put("avatar", "https://res.cloudinary.com/do1pouxi6/image/upload/v1747845728/habit_app/dpidxvdan3r82iivfpbx.jpg");
+        userMap.put("birthdate", "01/01/2000");
         userMap.put("gender", "");
         userMap.put("description", "");
 

@@ -156,6 +156,8 @@ public class HabitNoteActivity extends AppCompatActivity {
             @Override
             public void onHabitNoteListLoaded(ArrayList<HabitNote> notes) {
                 Log.d("HabitNoteActivity", "Total notes loaded: " + notes.size());
+                //Sort
+                notes.sort((a, b) -> b.getCreateAt().compareTo(a.getCreateAt()));
                 noteList.clear();
 
                 // Kiểm tra và log từng note

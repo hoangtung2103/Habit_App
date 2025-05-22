@@ -90,6 +90,9 @@ public class HistoryFragment extends Fragment {
                         pointHistoryList.add(history);
                     }
 
+                    // Sắp xếp danh sách theo ngày giảm dần
+                    pointHistoryList.sort((a, b) -> b.getCreate_at().compareTo(a.getCreate_at()));
+
                     // Cập nhật adapter
                     adapter = new UserPointAdapter(getContext(), pointHistoryList);
                     recyclerViewHistory.setAdapter(adapter);
