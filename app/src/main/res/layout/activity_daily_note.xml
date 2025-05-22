@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FAFAFA"
-    tools:context=".DailyNoteActivity">
+    tools:context=".activities.DailyNoteActivity">
 
     <!-- Header -->
     <LinearLayout
@@ -29,40 +29,36 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_back"
             android:contentDescription="@string/desc_back_button"
-            android:layout_marginEnd="16dp"/>
+            android:layout_marginEnd="0dp"/>
 
         <TextView
             android:id="@+id/headerTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Ghi chú của ngày"
-            android:textSize="18sp"
-            android:textStyle="bold"
             android:gravity="center"
-            android:textColor="#000"/>
+            android:text="Ghi chú của ngày"
+            android:textColor="#000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Ngày hiện tại -->
     <TextView
         android:id="@+id/tvDateToday"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
-        android:gravity="center"
         android:background="@drawable/dropdown_background"
+        android:gravity="center"
         android:text="13 Tháng 4, 2025"
-        android:textStyle="bold"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Danh sách note -->
-
-    <!-- Nút thêm -->
+        app:layout_constraintTop_toBottomOf="@id/headerLayout" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewNotes"

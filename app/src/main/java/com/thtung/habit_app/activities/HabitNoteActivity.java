@@ -52,7 +52,7 @@ public class HabitNoteActivity extends AppCompatActivity {
         dropdownSpinner = findViewById(R.id.dropdown);
 
         firestoreManager = new FirestoreManager();
-        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
 
         habitId = getIntent().getStringExtra("habitId");
         String habitName = getIntent().getStringExtra("habitName");
@@ -65,26 +65,30 @@ public class HabitNoteActivity extends AppCompatActivity {
             return;
         }
 
+        if (userId == null || userId.isEmpty()) {
+            Log.e("HabitNoteActivity", "userId is null or empty, user might not be logged in");
+            Toast.makeText(this, "Lỗi: Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         TextView noteTitle = findViewById(R.id.note_title);
         noteTitle.setText(habitName);
 
-        // Cấu hình Spinner với các giá trị
         ArrayAdapter<CharSequence> adapterSpinner = ArrayAdapter.createFromResource(this,
                 R.array.note_filter_options, android.R.layout.simple_spinner_item);
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         dropdownSpinner.setAdapter(adapterSpinner);
 
-        // Xử lý sự kiện khi chọn giá trị từ Spinner
         dropdownSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("HabitNoteActivity", "Spinner selected: " + parent.getItemAtPosition(position));
-                loadNotesFromFirestore(); // Tải lại ghi chú khi chọn filter
+                loadNotesFromFirestore();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Không làm gì khi không có lựa chọn
             }
         });
 
@@ -99,6 +103,18 @@ public class HabitNoteActivity extends AppCompatActivity {
 
             @Override
             public void onDelete(HabitNote note) {
+                if (note == null || note.getId() == null || note.getId().isEmpty()) {
+                    Log.e("HabitNoteActivity", "Cannot delete note: note or noteId is null or empty");
+                    Toast.makeText(HabitNoteActivity.this, "Lỗi: Ghi chú không hợp lệ", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (userId == null || userId.isEmpty()) {
+                    Log.e("HabitNoteActivity", "Cannot delete note: userId is null or empty");
+                    Toast.makeText(HabitNoteActivity.this, "Lỗi: Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Log.d("HabitNoteActivity", "Deleting note with ID: " + note.getId() + " for userId: " + userId);
                 firestoreManager.deleteHabitNote(userId, note.getId(), new FirestoreManager.NoteDeleteCallback() {
                     @Override
                     public void onNoteDeleted() {
@@ -122,10 +138,10 @@ public class HabitNoteActivity extends AppCompatActivity {
         addButton.setOnClickListener(v -> {
             Intent intent = new Intent(HabitNoteActivity.this, AddNoteActivity.class);
             intent.putExtra("habitId", habitId);
+            intent.putExtra("habitName", habitName);
             startActivity(intent);
         });
 
-        // Xử lý sự kiện nhấn nút Back
         btnBack.setOnClickListener(v -> {
             Intent intent = new Intent(HabitNoteActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -142,19 +158,29 @@ public class HabitNoteActivity extends AppCompatActivity {
                 Log.d("HabitNoteActivity", "Total notes loaded: " + notes.size());
                 noteList.clear();
 
-                // Lấy giá trị chọn từ Spinner
+                // Kiểm tra và log từng note
+                for (HabitNote note : notes) {
+                    if (note.getId() == null || note.getId().isEmpty()) {
+                        Log.w("HabitNoteActivity", "Invalid note in loaded data: ID is null or empty");
+                        continue;
+                    }
+                    Log.d("HabitNoteActivity", "Loaded note with ID: " + note.getId());
+                }
+
                 String selectedFilter = dropdownSpinner.getSelectedItem().toString();
                 Log.d("HabitNoteActivity", "Selected filter: " + selectedFilter);
 
-                // Ngày hiện tại: 05:42 AM +07, Sunday, May 18, 2025
                 Calendar currentDate = Calendar.getInstance();
-                currentDate.setTime(new Date()); // Đảm bảo lấy thời gian hiện tại
+                currentDate.setTime(new Date()); // Ngày hiện tại: 05:27 PM +07, Thursday, May 22, 2025
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
                 Log.d("HabitNoteActivity", "Current date: " + sdf.format(currentDate.getTime()));
 
-                // Lọc danh sách ghi chú dựa trên filter
                 for (HabitNote note : notes) {
+                    if (note.getId() == null || note.getId().isEmpty()) {
+                        continue; // Bỏ qua note không hợp lệ
+                    }
+
                     Timestamp createAt = note.getCreateAt();
                     if (createAt == null) {
                         Log.w("HabitNoteActivity", "Note ID " + note.getId() + " has null createAt, skipping.");
@@ -190,9 +216,7 @@ public class HabitNoteActivity extends AppCompatActivity {
         });
     }
 
-    // Hàm tính số ngày chênh lệch giữa hai ngày
     private long daysBetween(Calendar startDate, Calendar endDate) {
-        // Chuẩn hóa ngày để tránh ảnh hưởng giờ
         Calendar start = (Calendar) startDate.clone();
         Calendar end = (Calendar) endDate.clone();
 
@@ -208,7 +232,7 @@ public class HabitNoteActivity extends AppCompatActivity {
 
         long diffMs = end.getTimeInMillis() - start.getTimeInMillis();
         long diffDays = diffMs / (1000 * 60 * 60 * 24);
-        return Math.abs(diffDays); // Đảm bảo giá trị dương
+        return Math.abs(diffDays);
     }
 
     @Override

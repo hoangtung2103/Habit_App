@@ -382,15 +382,31 @@ public class FirestoreManager {
                     ArrayList<HabitNote> notes = new ArrayList<>();
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         HabitNote note = doc.toObject(HabitNote.class);
+                        if (note == null) {
+                            Log.w(TAG, "Failed to deserialize HabitNote from document: " + doc.getId());
+                            continue;
+                        }
+                        String docId = doc.getId();
+                        if (docId == null || docId.isEmpty()) {
+                            Log.w(TAG, "Document ID is null or empty for HabitNote");
+                            continue;
+                        }
+                        note.setId(docId);
+                        Log.d(TAG, "Loaded HabitNote with ID: " + docId + ", userId: " + note.getUserId() + ", habitId: " + note.getHabitId());
                         notes.add(note);
                     }
+                    Log.d(TAG, "Total HabitNotes loaded: " + notes.size());
                     callback.onHabitNoteListLoaded(notes);
                 })
-                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading HabitNotes: " + e.getMessage());
+                    callback.onError(e.getMessage());
+                });
     }
     public void deleteHabitNote(String userId, String noteId, NoteDeleteCallback callback) {
         Log.d(TAG, "Attempting to delete note with noteId: " + noteId + " for userId: " + userId);
 
+        // Kiểm tra tham số đầu vào
         if (noteId == null || noteId.isEmpty() || userId == null || userId.isEmpty()) {
             Log.e(TAG, "Invalid parameters: noteId or userId is null or empty");
             if (callback != null) {
@@ -401,7 +417,7 @@ public class FirestoreManager {
 
         DocumentReference noteRef = db.collection("HabitNote").document(noteId);
 
-        // Kiểm tra sự tồn tại và quyền truy cập trước khi xóa
+        // Kiểm tra sự tồn tại và quyền truy cập
         noteRef.get().addOnSuccessListener(documentSnapshot -> {
             if (!documentSnapshot.exists()) {
                 Log.w(TAG, "Note not found: " + noteId);
@@ -412,7 +428,7 @@ public class FirestoreManager {
             }
 
             String noteUserId = documentSnapshot.getString("userId");
-            if (!userId.equals(noteUserId)) {
+            if (noteUserId == null || !userId.equals(noteUserId)) {
                 Log.w(TAG, "User " + userId + " does not have permission to delete note: " + noteId);
                 if (callback != null) {
                     callback.onError("Bạn không có quyền xóa ghi chú này");

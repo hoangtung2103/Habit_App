@@ -64,6 +64,7 @@ public class HabitDetailActivity extends AppCompatActivity {
     private ActivityHabitDetailBinding binding;
     private String habitId;
     private String habitName;
+    private String userId;
     private Set<LocalDate> completedDates;
     private YearMonth currentViewedMonth;
 
@@ -78,26 +79,36 @@ public class HabitDetailActivity extends AppCompatActivity {
         FirestoreManager firestoreManager = new FirestoreManager();
         habitId = intent.getStringExtra("habitId");
         habitName = intent.getStringExtra("habitName");
+        userId = intent.getStringExtra("userId");
+
+        Log.d("HabitDetailActivity", "Received data - habitId: " + habitId + ", habitName: " + habitName + ", userId: " + userId);
+
+        if (habitId == null || userId == null) {
+            Log.e("HabitDetailActivity", "Invalid parameters - habitId: " + habitId + ", userId: " + userId);
+            Toast.makeText(this, "Lỗi: Dữ liệu không hợp lệ từ MainActivity", Toast.LENGTH_LONG).show();
+            binding.habitname.setText("Lỗi: Không thể tải dữ liệu");
+            return;
+        }
 
         binding.habitname.setText(habitName);
-        //trở lại
-        binding.back.setOnClickListener(v->{
-            startActivity(new Intent(HabitDetailActivity.this, MainActivity.class));
+        binding.back.setOnClickListener(v -> {
+            Intent backIntent = new Intent(HabitDetailActivity.this, MainActivity.class);
+            backIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(backIntent);
+            finish();
         });
 
-        //Click button sửa thói quen
         binding.editHabit.setOnClickListener(v -> {
             Intent intent1 = new Intent(HabitDetailActivity.this, EditHabitActivity.class);
             intent1.putExtra("habitId", habitId);
             startActivity(intent1);
         });
 
-        //Thêm danh sách ngày hoàn thành để hiển thị lên lịch
         completedDates = new HashSet<>();
         firestoreManager.getDSHabitLog(habitId, new FirestoreManager.GetHabitLogCallback() {
             @Override
             public void onHabitLogLoaded(ArrayList<HabitLog> habitLog) {
-                for(HabitLog log : habitLog) {
+                for (HabitLog log : habitLog) {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
                     LocalDate date = LocalDate.parse(log.getDate(), formatter);
                     completedDates.add(date);
@@ -108,11 +119,10 @@ public class HabitDetailActivity extends AppCompatActivity {
 
             @Override
             public void onError(String errorMessage) {
-
+                Log.e("HabitDetailActivity", "Error loading habit logs: " + errorMessage);
             }
         });
 
-        //Lấy Statistic để hiển thị các thông số
         firestoreManager.getStatistic(habitId, new FirestoreManager.GetStatisticCallback() {
             @Override
             public void onStatisticLoaded(Statistic statistic) {
@@ -122,29 +132,24 @@ public class HabitDetailActivity extends AppCompatActivity {
                 binding.txtStreak.setText(Long.toString(statistic.getStreak()));
                 binding.txtTong.setText(Long.toString(statistic.getLast_completed()));
 
-                // BIỂU ĐỒ
                 ProgressCircleView progressCircleView = binding.pieChart;
                 Log.d("Phan Tram", String.valueOf(phanTram));
                 progressCircleView.setPercent((float) phanTram);
                 binding.goiY.setOnClickListener(v -> {
-                    //setupAdviceAndReview(phanTram);
                     getAIAdviceFromOpenRouter(statistic);
                 });
             }
 
             @Override
             public void onError(String errorMessage) {
-
+                Log.e("HabitDetailActivity", "Error loading statistic: " + errorMessage);
             }
         });
     }
 
-
-
     private void getAIAdviceFromOpenRouter(Statistic stat) {
-        String apiKey = "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"; // <-- Thay bằng API key của bạn từ OpenRouter
+        String apiKey = "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";
 
-        // Tạo prompt từ thông tin của thói quen
         String prompt = "Đây là dữ liệu thống kê của một thói quen:\n" +
                 "- Số ngày đã hoàn thành: " + stat.getTotal_completed() + "\n" +
                 "- Tổng số ngày đã qua: " + stat.getLast_completed() + "\n" +
@@ -152,17 +157,15 @@ public class HabitDetailActivity extends AppCompatActivity {
                 "- Chuỗi dài nhất: " + stat.getMax_streak() + "\n" +
                 "Dựa vào các thông tin trên, hãy đưa ra một lời khuyên hoặc nhận xét ngắn gọn bằng tiếng Việt giúp người dùng cải thiện hoặc duy trì thói quen.";
 
-        // Tạo một OkHttpClient để gửi yêu cầu
         OkHttpClient client = new OkHttpClient();
 
-        // Xây dựng JSON request body
         JSONObject json = new JSONObject();
         try {
-            json.put("model", "mistralai/mixtral-8x7b-instruct"); // Sử dụng mô hình OpenRouter (mistralai/mixtral-8x7b-instruct)
+            json.put("model", "mistralai/mixtral-8x7b-instruct");
             JSONArray messages = new JSONArray();
             JSONObject userMessage = new JSONObject();
             userMessage.put("role", "user");
-            userMessage.put("content", prompt); // Đưa prompt vào nội dung
+            userMessage.put("content", prompt);
             messages.put(userMessage);
             json.put("messages", messages);
         } catch (JSONException e) {
@@ -170,17 +173,14 @@ public class HabitDetailActivity extends AppCompatActivity {
             return;
         }
 
-        // Tạo request body
         RequestBody body = RequestBody.create(json.toString(), MediaType.get("application/json; charset=utf-8"));
 
-        // Tạo request gửi đến OpenRouter API
         Request request = new Request.Builder()
                 .url("https://openrouter.ai/api/v1/chat/completions")
-                .header("Authorization", "Bearer " + apiKey) // Thêm Bearer token
+                .header("Authorization", "Bearer " + apiKey)
                 .post(body)
                 .build();
 
-        // Gửi yêu cầu và xử lý phản hồi
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -198,14 +198,12 @@ public class HabitDetailActivity extends AppCompatActivity {
                 String responseBody = response.body().string();
 
                 try {
-                    // Xử lý phản hồi JSON trả về từ OpenRouter API
                     JSONObject jsonObject = new JSONObject(responseBody);
                     JSONArray choices = jsonObject.getJSONArray("choices");
                     String content = choices.getJSONObject(0)
                             .getJSONObject("message")
                             .getString("content");
 
-                    // Hiển thị lời khuyên hoặc nhận xét từ AI
                     runOnUiThread(() -> showAdvicePopup(content.trim()));
                 } catch (JSONException e) {
                     runOnUiThread(() -> showAdvicePopup("Lỗi phân tích dữ liệu trả về."));
@@ -213,9 +211,6 @@ public class HabitDetailActivity extends AppCompatActivity {
             }
         });
     }
-
-
-
 
     private void showAdvicePopup(String advice) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -229,7 +224,6 @@ public class HabitDetailActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
     }
-
 
     private void setupAdviceAndReview(int performance) {
         int imageResId;
@@ -245,40 +239,31 @@ public class HabitDetailActivity extends AppCompatActivity {
             imageResId = R.drawable.aa100;
         }
 
-        // Kích thước ảnh
         int width = (int) (250 * HabitDetailActivity.this.getResources().getDisplayMetrics().density);
         int height = (int) (350 * HabitDetailActivity.this.getResources().getDisplayMetrics().density);
 
-// Tạo ImageView
         ImageView imageView = new ImageView(HabitDetailActivity.this);
         imageView.setImageResource(imageResId);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setAdjustViewBounds(true);
 
-// CardView để bo góc
         CardView cardView = new CardView(HabitDetailActivity.this);
         cardView.setRadius(24 * HabitDetailActivity.this.getResources().getDisplayMetrics().density);
         cardView.setCardElevation(0);
         cardView.setUseCompatPadding(false);
         cardView.setPreventCornerOverlap(true);
         cardView.setLayoutParams(new ViewGroup.LayoutParams(width, height));
-        cardView.setContentPadding(0, 0, 0, 0); // quan trọng
+        cardView.setContentPadding(0, 0, 0, 0);
         cardView.addView(imageView);
 
-// Dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(HabitDetailActivity.this, R.style.TransparentDialog);
         builder.setView(cardView);
 
         AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
-
-
-
     }
 
-
-    // Hàm cập nhật tiêu đề tháng/năm
     private void updateMonthYearText(YearMonth yearMonth) {
         String monthName = yearMonth.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault());
         String year = String.valueOf(yearMonth.getYear());
@@ -286,19 +271,15 @@ public class HabitDetailActivity extends AppCompatActivity {
         binding.monthYearText.setText(monthName + ", " + year);
     }
 
-
-    // Hàm hiển thị lịch
     private void setupCalendar() {
         YearMonth currentMonth = YearMonth.now();
         currentViewedMonth = currentMonth;
 
-        // SETUP HIỂN THỊ LỊCH
         YearMonth startMonth = currentMonth.minusMonths(2);
         YearMonth endMonth = currentMonth.plusMonths(2);
         binding.calendarView.setup(startMonth, endMonth, DayOfWeek.MONDAY);
         binding.calendarView.scrollToMonth(currentMonth);
 
-        // Cập nhật tiêu đề tháng/năm ban đầu
         updateMonthYearText(currentMonth);
 
         class DayViewContainer extends ViewContainer {
@@ -313,7 +294,7 @@ public class HabitDetailActivity extends AppCompatActivity {
                 LocalDate date = day.getDate();
                 TextView dayText = dayBinding.dayText;
                 dayText.setText(String.valueOf(date.getDayOfMonth()));
-                dayText.setVisibility(View.VISIBLE); // Luôn hiển thị tất cả các ngày
+                dayText.setVisibility(View.VISIBLE);
 
                 YearMonth monthOfDay = YearMonth.from(date);
 
@@ -333,7 +314,18 @@ public class HabitDetailActivity extends AppCompatActivity {
                 }
 
                 dayBinding.getRoot().setOnClickListener(v -> {
-                    Toast.makeText(HabitDetailActivity.this, "Chi tiết ngày: " + date, Toast.LENGTH_SHORT).show();
+                    Log.d("HabitDetailActivity", "Navigating to DailyNoteActivity - habitId: " + habitId + ", habitName: " + habitName + ", userId: " + userId + ", selectedDate: " + date);
+                    if (habitId == null || userId == null) {
+                        Log.e("HabitDetailActivity", "Cannot navigate: habitId or userId is null");
+                        Toast.makeText(HabitDetailActivity.this, "Lỗi: Dữ liệu không hợp lệ", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Intent intent = new Intent(HabitDetailActivity.this, DailyNoteActivity.class);
+                    intent.putExtra("habitId", habitId);
+                    intent.putExtra("habitName", habitName); // Thêm habitName vào Intent
+                    intent.putExtra("userId", userId);
+                    intent.putExtra("selectedDate", date);
+                    startActivity(intent);
                 });
             }
         }
@@ -351,7 +343,6 @@ public class HabitDetailActivity extends AppCompatActivity {
             }
         });
 
-        // Cập nhật tiêu đề tháng/năm khi lướt
         binding.calendarView.setMonthScrollListener(month -> {
             currentViewedMonth = month.getYearMonth();
             updateMonthYearText(currentViewedMonth);
@@ -359,7 +350,6 @@ public class HabitDetailActivity extends AppCompatActivity {
             return null;
         });
     }
-
 
     @Override
     protected void onDestroy() {

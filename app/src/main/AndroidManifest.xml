@@ -28,6 +28,9 @@
             android:name=".activities.HabitNoteActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.DailyNoteActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.AddNoteActivity"
             android:exported="false" />
         <activity

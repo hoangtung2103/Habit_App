@@ -27,6 +27,7 @@ public class AddNoteActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private String noteId = null;  // nếu null là thêm mới, ngược lại là chỉnh sửa
     private String habitId;  // Thêm biến để lưu habitId
+    private String habitName; // Thêm biến để lưu habitName
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,13 +38,21 @@ public class AddNoteActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
 
-        // Lấy habitId từ Intent
+        // Lấy habitId và habitName từ Intent
         habitId = getIntent().getStringExtra("habitId");
+        habitName = getIntent().getStringExtra("habitName");
         if (habitId == null || habitId.isEmpty()) {
             Toast.makeText(this, "Lỗi: Không tìm thấy ID thói quen", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
+        if (habitName == null || habitName.isEmpty()) {
+            habitName = "Thói quen không xác định"; // Giá trị mặc định nếu không có habitName
+            Log.w("AddNoteActivity", "habitName is null or empty, using default value");
+        }
+
+        // Hiển thị tên thói quen trong textHabitTitle
+        binding.textHabitTitle.setText(habitName);
 
         // Hiển thị thời gian hiện tại nếu là ghi chú mới
         if (firebaseAuth.getUid() != null) {
@@ -77,7 +86,6 @@ public class AddNoteActivity extends AppCompatActivity {
                         String content = documentSnapshot.getString("content");
                         binding.editNoteContent.setText(content);
 
-                        // Kiểm tra quyền truy cập
                         String noteUserId = documentSnapshot.getString("userId");
                         if (!userId.equals(noteUserId)) {
                             Toast.makeText(this, "Bạn không có quyền chỉnh sửa ghi chú này", Toast.LENGTH_SHORT).show();
@@ -85,7 +93,6 @@ public class AddNoteActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // Lấy và hiển thị thời gian tạo từ Firestore
                         Timestamp createAt = documentSnapshot.getTimestamp("createAt");
                         if (createAt != null) {
                             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
@@ -118,7 +125,6 @@ public class AddNoteActivity extends AppCompatActivity {
         }
 
         if (noteId != null) {
-            // Cập nhật ghi chú hiện tại
             Map<String, Object> noteData = new HashMap<>();
             noteData.put("content", noteContent);
             noteData.put("createAt", Timestamp.now());
@@ -134,7 +140,6 @@ public class AddNoteActivity extends AppCompatActivity {
                             Toast.makeText(this, "Cập nhật thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                     );
         } else {
-            // Thêm mới ghi chú
             Map<String, Object> noteData = new HashMap<>();
             noteData.put("content", noteContent);
             noteData.put("createAt", Timestamp.now());

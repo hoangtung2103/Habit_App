@@ -37,12 +37,8 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     private UserPointRepository userPointRepository;
 
     public interface OnHabitInteractionListener {
-        // Thông báo khi habit được check thành công VÀ đã lưu log
         void onHabitCheckedAndLogged(String habitId, String date);
-        // Thông báo khi có lỗi xảy ra trong quá trình check/lưu log
         void onHabitCheckFailed(String habitId, String errorMessage);
-        // (Tùy chọn) Thêm các tương tác khác nếu cần, ví dụ onClick item
-        // void onHabitClicked(Habit habit);
     }
 
     public HabitAdapter(Context context, ArrayList<Habit> habitList, String userId, FirestoreManager manager, OnHabitInteractionListener listener) {
@@ -52,8 +48,8 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         this.firestoreManager = manager;
         this.userId = userId;
         this.habitInteractionListener = listener;
-        this.userPointRepository = userPointRepository.getInstance();
-        filterHabits(); // Lọc ra danh sách đúng ngày
+        this.userPointRepository = UserPointRepository.getInstance();
+        filterHabits();
     }
 
     private void filterHabits() {
@@ -79,45 +75,34 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         holder.binding.mucTieu.setText(habit.getTarget());
         Glide.with(context).load(habit.getUrl_icon()).into(holder.binding.iconHabit);
 
-        // Lấy ngày hiện tại dạng yyyyMMdd
         String today = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
 
-        // Kiểm tra trạng thái hoàn thành hôm nay
         firestoreManager.checkHabitLog(habit.getId(), userId, today, new FirestoreManager.CheckHabitLogCallback() {
             @Override
             public void onCheckCompleted(boolean completed) {
-                holder.binding.checkBox.setOnCheckedChangeListener(null); // Xóa listener cũ tránh callback khi setChecked
+                holder.binding.checkBox.setOnCheckedChangeListener(null);
                 holder.binding.checkBox.setChecked(completed);
-                holder.binding.checkBox.setEnabled(!completed);  // Nếu hoàn thành thì khóa checkbox
+                holder.binding.checkBox.setEnabled(!completed);
 
                 holder.binding.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (isChecked && holder.binding.checkBox.isEnabled()) {
                         firestoreManager.saveHabitLog(habit.getId(), userId, today, true, new FirestoreManager.FirestoreWriteCallback() {
                             @Override
                             public void onSuccess() {
-                                // Gọi listener để báo cho Activity/Fragment
                                 if (habitInteractionListener != null) {
                                     habitInteractionListener.onHabitCheckedAndLogged(habit.getId(), today);
                                 }
-                                // Cập nhật thống kê (có thể chuyển logic này vào ViewModel sau khi nhận callback)
-                                // firestoreManager.updateStatisticAfterLog(habit.getId(), userId, today, habit.getRepeat());
                                 Log.d("HabitAdapter", "saveHabitLog onSuccess for " + habit.getId());
 
                                 userPointRepository.incrementPointPerCompletedHabitInDay(userId, habit.getId(), habit.getName(), new UserPointCallback() {
                                     @Override
-                                    public void onUserPointLoaded(UserPoint userPoint) {
-
-                                    }
+                                    public void onUserPointLoaded(UserPoint userPoint) {}
 
                                     @Override
-                                    public void onPointsAwarded() {
-
-                                    }
+                                    public void onPointsAwarded() {}
 
                                     @Override
-                                    public void onAlreadyAwardedToday() {
-
-                                    }
+                                    public void onAlreadyAwardedToday() {}
 
                                     @Override
                                     public void onSuccess() {
@@ -134,28 +119,31 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
                             }
 
                             @Override
-                            public void onError(String message) {
-
-                            }
+                            public void onError(String message) {}
                         });
                         firestoreManager.updateStatisticAfterLog(context, habit.getId(), userId, today, habit.getRepeat());
                         holder.binding.checkBox.setEnabled(false);
                     } else if (!isChecked) {
-                        holder.binding.checkBox.setChecked(true); // Không cho uncheck
+                        holder.binding.checkBox.setChecked(true);
                     }
                 });
             }
 
             @Override
-            public void onError(String errorMessage) {
-                // Xử lý lỗi nếu cần
-            }
+            public void onError(String errorMessage) {}
         });
 
         holder.binding.getRoot().setOnClickListener(v -> {
+            Log.d("HabitAdapter", "Opening HabitDetailActivity - habitId: " + habit.getId() + ", habitName: " + habit.getName() + ", userId: " + userId);
+            if (userId == null || userId.isEmpty()) {
+                Log.e("HabitAdapter", "Cannot open HabitDetailActivity: userId is null or empty");
+                Toast.makeText(context, "Lỗi: Người dùng chưa được xác thực", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(context, HabitDetailActivity.class);
             intent.putExtra("habitId", habit.getId());
             intent.putExtra("habitName", habit.getName());
+            intent.putExtra("userId", userId); // Thêm userId vào Intent
             context.startActivity(intent);
         });
 
@@ -186,36 +174,29 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         Date startDate = habit.getStart_at().toDate();
         Date todayDate = new Date();
 
-        // Định dạng yyyyMMdd để so sánh ngày chính xác, bỏ qua giờ phút giây
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
         int startInt = Integer.parseInt(sdf.format(startDate));
         int todayInt = Integer.parseInt(sdf.format(todayDate));
 
-        // Nếu ngày bắt đầu > hôm nay => không hiển thị
         if (startInt > todayInt) return false;
 
         switch (repeatType) {
             case "Hàng ngày":
-                return true;  // Nếu đã bắt đầu, ngày nào cũng hiển thị
-            case "Hàng tuần": {
-                // Tính số tuần chênh lệch, kiểm tra đúng ngày trong tuần
+                return true;
+            case "Hàng tuần":
                 Calendar startCal = Calendar.getInstance();
                 startCal.setTime(startDate);
                 Calendar todayCal = Calendar.getInstance();
                 todayCal.setTime(todayDate);
                 return startCal.get(Calendar.DAY_OF_WEEK) == todayCal.get(Calendar.DAY_OF_WEEK);
-            }
-            case "Hàng tháng": {
-                // Kiểm tra cùng ngày trong tháng
-                Calendar startCal = Calendar.getInstance();
+            case "Hàng tháng":
+                startCal = Calendar.getInstance();
                 startCal.setTime(startDate);
-                Calendar todayCal = Calendar.getInstance();
+                todayCal = Calendar.getInstance();
                 todayCal.setTime(todayDate);
                 return startCal.get(Calendar.DAY_OF_MONTH) == todayCal.get(Calendar.DAY_OF_MONTH);
-            }
             default:
                 return false;
         }
     }
-
 }
