@@ -12,27 +12,26 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.thtung.habit_app.databinding.ActivityAddNoteBinding;
+import com.thtung.habit_app.databinding.ActivityFixNoteBinding;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class AddNoteActivity extends AppCompatActivity {
+public class FixNoteActivity extends AppCompatActivity {
 
-    private ActivityAddNoteBinding binding;
+    private ActivityFixNoteBinding binding;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
-    private String noteId = null;  // nếu null là thêm mới, ngược lại là chỉnh sửa
-    private String habitId;  // Thêm biến để lưu habitId
-    private String habitName; // Thêm biến để lưu habitName
+    private String noteId;
+    private String habitId;
+    private String habitName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAddNoteBinding.inflate(getLayoutInflater());
+        binding = ActivityFixNoteBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -47,26 +46,26 @@ public class AddNoteActivity extends AppCompatActivity {
             return;
         }
         if (habitName == null || habitName.isEmpty()) {
-            habitName = "Thói quen không xác định"; // Giá trị mặc định nếu không có habitName
+            habitName = "Thói quen không xác định";
         }
 
+        // Hiển thị tên thói quen
         binding.textHabitTitle.setText(habitName);
 
-        // Hiển thị thời gian hiện tại nếu là ghi chú mới
-        if (firebaseAuth.getUid() != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
-            String currentTime = sdf.format(new Date());
-            binding.textTime.setText(currentTime);
+        // Lấy noteId từ Intent
+        noteId = getIntent().getStringExtra("noteId");
+        if (noteId == null || noteId.isEmpty()) {
+            Toast.makeText(this, "Lỗi: Không tìm thấy ID ghi chú", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        noteId = getIntent().getStringExtra("noteId");
-        if (noteId != null) {
-            loadNoteFromFirestore(noteId);
-        }
+        // Tải dữ liệu ghi chú hiện có
+        loadNoteFromFirestore(noteId);
 
         binding.btnCancel.setOnClickListener(view -> finish());
 
-        binding.btnSave.setOnClickListener(view -> saveNoteToFirestore());
+        binding.btnSave.setOnClickListener(view -> updateNoteInFirestore());
     }
 
     private void loadNoteFromFirestore(String noteId) {
@@ -109,7 +108,7 @@ public class AddNoteActivity extends AppCompatActivity {
                 );
     }
 
-    private void saveNoteToFirestore() {
+    private void updateNoteInFirestore() {
         String noteContent = binding.editNoteContent.getText().toString().trim();
         if (noteContent.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập nội dung ghi chú!", Toast.LENGTH_SHORT).show();
@@ -122,37 +121,19 @@ public class AddNoteActivity extends AppCompatActivity {
             return;
         }
 
-        if (noteId != null) {
-            Map<String, Object> noteData = new HashMap<>();
-            noteData.put("content", noteContent);
-            noteData.put("createAt", Timestamp.now());
+        // Chỉ cập nhật content, không cập nhật createAt
+        Map<String, Object> noteData = new HashMap<>();
+        noteData.put("content", noteContent);
 
-            firestore.collection("HabitNote")
-                    .document(noteId)
-                    .update(noteData)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Đã cập nhật ghi chú!", Toast.LENGTH_SHORT).show();
-                        finish();
-                    })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "Cập nhật thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
-        } else {
-            Map<String, Object> noteData = new HashMap<>();
-            noteData.put("content", noteContent);
-            noteData.put("createAt", Timestamp.now());
-            noteData.put("habitId", habitId);
-            noteData.put("userId", userId);
-
-            firestore.collection("HabitNote")
-                    .add(noteData)
-                    .addOnSuccessListener(documentReference -> {
-                        Toast.makeText(this, "Đã thêm ghi chú mới!", Toast.LENGTH_SHORT).show();
-                        finish();
-                    })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "Thêm ghi chú thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
-        }
+        firestore.collection("HabitNote")
+                .document(noteId)
+                .update(noteData)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Đã cập nhật nội dung ghi chú!", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Cập nhật thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
 }

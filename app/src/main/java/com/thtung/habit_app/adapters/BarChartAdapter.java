@@ -2,7 +2,6 @@ package com.thtung.habit_app.adapters;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,14 +35,14 @@ public class BarChartAdapter extends RecyclerView.Adapter<BarChartAdapter.BarCha
                 ? barChartDataList.get(position)
                 : new BarChartData("", "No Data", 0.0);
 
-        // Hiển thị phần trăm
+        // Hiển thị phần trăm trên đỉnh cột
         holder.tvBarPercent.setText(String.format(Locale.getDefault(), "%.0f%%", data.getSuccessPercent()));
         holder.tvBarPercent.setVisibility(View.VISIBLE);
 
-        // Hiển thị tên thói quen
-        holder.tvHabitName.setText(data.getHabitName() == null || data.getHabitName().isEmpty()
-                ? "No Habit" : data.getHabitName());
-        holder.tvHabitName.setVisibility(View.VISIBLE);
+        // Hiển thị ngày bên dưới cột
+        holder.tvDate.setText(data.getHabitName() == null || data.getHabitName().isEmpty()
+                ? "No Data" : data.getHabitName());
+        holder.tvDate.setVisibility(View.VISIBLE);
 
         // Điều chỉnh chiều cao và tạo gradient cho cột
         ViewGroup.LayoutParams params = holder.barView.getLayoutParams();
@@ -56,7 +55,7 @@ public class BarChartAdapter extends RecyclerView.Adapter<BarChartAdapter.BarCha
         holder.barView.setLayoutParams(params);
         holder.barView.setVisibility(View.VISIBLE);
 
-        // Tạo gradient và bo tròn góc cho cột
+        // Tạo gradient và bo tròn góc cho cột, hướng từ dưới lên
         GradientDrawable gradientDrawable = new GradientDrawable();
         gradientDrawable.setCornerRadius(10 * density);
         int startColor, endColor;
@@ -72,8 +71,13 @@ public class BarChartAdapter extends RecyclerView.Adapter<BarChartAdapter.BarCha
             endColor = ContextCompat.getColor(context, R.color.green_dark);
         }
         gradientDrawable.setColors(new int[] {startColor, endColor});
-        gradientDrawable.setOrientation(GradientDrawable.Orientation.TOP_BOTTOM);
+        gradientDrawable.setOrientation(GradientDrawable.Orientation.BOTTOM_TOP); // Hướng từ dưới lên
         holder.barView.setBackground(gradientDrawable);
+
+        // Thêm margin để tạo khoảng cách giữa các cột
+        ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
+        marginParams.setMargins(35, 0, 35, 0);
+        holder.itemView.setLayoutParams(marginParams);
     }
 
     @Override
@@ -82,13 +86,13 @@ public class BarChartAdapter extends RecyclerView.Adapter<BarChartAdapter.BarCha
     }
 
     public static class BarChartViewHolder extends RecyclerView.ViewHolder {
-        TextView tvBarPercent, tvHabitName;
+        TextView tvBarPercent, tvDate;
         View barView;
 
         public BarChartViewHolder(@NonNull View itemView) {
             super(itemView);
             tvBarPercent = itemView.findViewById(R.id.tv_bar_percent);
-            tvHabitName = itemView.findViewById(R.id.tv_habit_name);
+            tvDate = itemView.findViewById(R.id.tv_date);
             barView = itemView.findViewById(R.id.bar_view);
         }
     }

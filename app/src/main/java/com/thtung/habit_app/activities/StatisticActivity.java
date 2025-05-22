@@ -10,33 +10,38 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.thtung.habit_app.R;
 import com.thtung.habit_app.adapters.BarChartAdapter;
+import com.thtung.habit_app.firebase.FirestoreManager;
 import com.thtung.habit_app.model.BarChartData;
+import com.thtung.habit_app.model.HabitLog;
 import com.thtung.habit_app.model.Statistic;
 import com.thtung.habit_app.utils.ProgressCircleView;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class StatisticActivity extends AppCompatActivity {
     private FirebaseFirestore db;
+    private FirestoreManager firestoreManager;
     private static final String TAG = "StatisticActivity";
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     private TextView tvTotalTasks, tvTotalCompleted, tvTotalUncompleted;
-    private TextView tvCompleted, tvUncompletedDetail, tvProgressMessage;
+    private TextView tvCurStreak, tvPoint;
     private RecyclerView rvBarChart;
     private ProgressCircleView pieChart;
 
@@ -48,13 +53,15 @@ public class StatisticActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
+        firestoreManager = new FirestoreManager();
 
         tvTotalTasks = findViewById(R.id.tv_total_tasks);
         tvTotalCompleted = findViewById(R.id.tv_total_completed);
         tvTotalUncompleted = findViewById(R.id.tv_total_uncompleted);
-        tvCompleted = findViewById(R.id.txt_hoanthanh);
-        tvUncompletedDetail = findViewById(R.id.txt_khonghoanthanh);
-        tvProgressMessage = findViewById(R.id.tv_progress_message);
+
+        tvCurStreak = findViewById(R.id.txt_curstreak);
+        tvPoint = findViewById(R.id.txt_point);
+
         rvBarChart = findViewById(R.id.rv_bar_chart);
         pieChart = findViewById(R.id.pieChart);
 
@@ -92,10 +99,28 @@ public class StatisticActivity extends AppCompatActivity {
     }
 
     private void loadStatistics(String userId) {
-        db.collection("Statistic")
+        // Truy vấn từ Statistic
+        Task<QuerySnapshot> statisticTask = db.collection("Statistic")
                 .whereEqualTo("user_id", userId)
-                .get()
-                .addOnSuccessListener(statisticSnapshots -> {
+                .get();
+
+        // Truy vấn từ UserStreak
+        Task<QuerySnapshot> userStreakTask = db.collection("UserStreak")
+                .whereEqualTo("user_id", userId)
+                .limit(1)
+                .get();
+
+        // Truy vấn từ UserPoint
+        Task<QuerySnapshot> userPointTask = db.collection("UserPoint")
+                .whereEqualTo("user_id", userId)
+                .limit(1)
+                .get();
+
+        // Chờ tất cả truy vấn hoàn thành
+        Tasks.whenAllSuccess(statisticTask, userStreakTask, userPointTask)
+                .addOnSuccessListener(results -> {
+                    // Xử lý Statistic
+                    QuerySnapshot statisticSnapshots = (QuerySnapshot) results.get(0);
                     long totalTasks = 0;
                     long completedTasks = 0;
 
@@ -115,112 +140,170 @@ public class StatisticActivity extends AppCompatActivity {
                     long uncompletedTasks = Math.max(0, totalTasks - completedTasks);
                     int progressPercent = totalTasks > 0 ? (int) ((completedTasks * 100) / totalTasks) : 0;
 
+                    // Xử lý UserStreak
+                    QuerySnapshot userStreakSnapshots = (QuerySnapshot) results.get(1);
+                    long currentStreak = 0;
+                    if (!userStreakSnapshots.isEmpty()) {
+                        QueryDocumentSnapshot streakDoc = (QueryDocumentSnapshot) userStreakSnapshots.getDocuments().get(0);
+                        Object streakValue = streakDoc.get("currentStreak");
+                        if (streakValue instanceof Long) {
+                            currentStreak = (Long) streakValue;
+                        } else if (streakValue instanceof Integer) {
+                            currentStreak = ((Integer) streakValue).longValue();
+                        } else {
+                            Log.w(TAG, "currentStreak has unexpected type: " + (streakValue != null ? streakValue.getClass().getSimpleName() : "null"));
+                        }
+                    } else {
+                        Log.d(TAG, "No UserStreak document found for user_id: " + userId);
+                    }
+
+                    // Xử lý UserPoint
+                    QuerySnapshot userPointSnapshots = (QuerySnapshot) results.get(2);
+                    long totalPoint = 0;
+                    if (!userPointSnapshots.isEmpty()) {
+                        QueryDocumentSnapshot pointDoc = (QueryDocumentSnapshot) userPointSnapshots.getDocuments().get(0);
+                        Object pointValue = pointDoc.get("total_point");
+                        if (pointValue instanceof Long) {
+                            totalPoint = (Long) pointValue;
+                        } else if (pointValue instanceof Integer) {
+                            totalPoint = ((Integer) pointValue).longValue();
+                        } else {
+                            Log.w(TAG, "total_point has unexpected type: " + (pointValue != null ? pointValue.getClass().getSimpleName() : "null"));
+                        }
+                    } else {
+                        Log.d(TAG, "No UserPoint document found for user_id: " + userId);
+                    }
+
+                    // Cập nhật giao diện
                     tvTotalTasks.setText(String.valueOf(totalTasks));
                     tvTotalCompleted.setText(String.valueOf(completedTasks));
                     tvTotalUncompleted.setText(String.valueOf(uncompletedTasks));
-                    tvCompleted.setText(String.valueOf(completedTasks));
-                    tvUncompletedDetail.setText(String.valueOf(uncompletedTasks));
-                    tvProgressMessage.setText("Bạn đã thực hiện " + progressPercent + "% thói quen của mình!");
+
+                    tvCurStreak.setText(String.valueOf(currentStreak));
+                    tvPoint.setText(String.valueOf(totalPoint));
 
                     pieChart.setPercent(progressPercent);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Lỗi tải Statistic: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    setDefaultStatistics();
                 });
+    }
+
+    private void setDefaultStatistics() {
+        tvTotalTasks.setText("0");
+        tvTotalCompleted.setText("0");
+        tvTotalUncompleted.setText("0");
+
+        tvCurStreak.setText("0");
+        tvPoint.setText("0");
+
+        pieChart.setPercent(0);
     }
 
     private void loadBarChartData(String userId) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM");
         Calendar calendar = Calendar.getInstance();
-        String endDate = dateFormat.format(calendar.getTime());
-        calendar.add(Calendar.DAY_OF_MONTH, -5);
-        String startDate = dateFormat.format(calendar.getTime());
+        List<String> dayLabels = new ArrayList<>();
+        Map<String, Integer> dailyCompletedCount = new HashMap<>();
 
-        db.collection("Habit")
-                .whereEqualTo("user_id", userId)
-                .get()
-                .addOnSuccessListener(habitSnapshots -> {
-                    List<BarChartData> barChartDataList = new ArrayList<>();
-                    Map<String, String> habitNames = new HashMap<>();
-                    Set<String> habitIds = new HashSet<>();
+        // Lấy 5 ngày gần nhất
+        for (int i = 4; i >= 0; i--) {
+            Calendar dayCalendar = (Calendar) calendar.clone();
+            dayCalendar.add(Calendar.DAY_OF_MONTH, -i);
+            String day = dateFormat.format(dayCalendar.getTime());
+            dayLabels.add(day);
+            dailyCompletedCount.put(day, 0);
+        }
 
-                    for (QueryDocumentSnapshot document : habitSnapshots) {
-                        String habitId = document.getId();
-                        String name = document.getString("name");
-                        habitIds.add(habitId);
-                        habitNames.put(habitId, name != null ? name : "No Data");
-                        Log.d(TAG, "Habit - ID: " + habitId + ", Name: " + name);
+        firestoreManager.getHabitsTask(userId).addOnSuccessListener(habitSnapshots -> {
+            final int totalHabits = habitSnapshots.size();
+            Log.d(TAG, "Total Habits: " + totalHabits);
+
+            if (totalHabits == 0) {
+                setDefaultBarChart();
+                return;
+            }
+
+            List<Task<QuerySnapshot>> logTasks = new ArrayList<>();
+            for (String day : dayLabels) {
+                logTasks.add(firestoreManager.getTodaysCompletionsTask(userId, day));
+            }
+
+            Tasks.whenAllSuccess(logTasks).addOnSuccessListener(results -> {
+                List<BarChartData> barChartDataList = new ArrayList<>();
+
+                for (int i = 0; i < results.size(); i++) {
+                    QuerySnapshot logSnapshot = (QuerySnapshot) results.get(i);
+                    String day = dayLabels.get(i);
+                    int completedCount = 0;
+
+                    for (QueryDocumentSnapshot doc : logSnapshot) {
+                        HabitLog log = doc.toObject(HabitLog.class);
+                        if (log != null && log.isCompleted()) {
+                            completedCount++;
+                        }
                     }
+                    dailyCompletedCount.put(day, completedCount);
 
-                    // Truy vấn đơn giản hơn, chỉ lọc user_id và completed
-                    db.collection("HabitLog")
-                            .whereEqualTo("user_id", userId)
-                            .whereEqualTo("completed", true)
-                            .get()
-                            .addOnSuccessListener(logSnapshots -> {
-                                Map<String, Set<String>> completedDaysMap = new HashMap<>();
-
-                                // Lọc thủ công các tài liệu có date trong phạm vi
-                                for (QueryDocumentSnapshot logDoc : logSnapshots) {
-                                    String habitId = logDoc.getString("habit_id");
-                                    String dateStr = logDoc.getString("date");
-
-                                    if (habitId != null && habitIds.contains(habitId) && dateStr != null && dateStr.matches("\\d{8}")) {
-                                        // So sánh thủ công với startDate và endDate
-                                        if (dateStr.compareTo(startDate) >= 0 && dateStr.compareTo(endDate) <= 0) {
-                                            completedDaysMap.putIfAbsent(habitId, new HashSet<>());
-                                            completedDaysMap.get(habitId).add(dateStr);
-                                        }
-                                    } else {
-                                        Log.w(TAG, "Invalid data - habitId: " + habitId + ", date: " + dateStr);
-                                    }
-                                }
-
-                                for (String habitId : habitIds) {
-                                    int completedDays = completedDaysMap.getOrDefault(habitId, new HashSet<>()).size();
-                                    double successPercent = (completedDays * 100.0) / 5; // Chia cho 5 ngày
-                                    String habitName = habitNames.getOrDefault(habitId, "No Habit");
-                                    barChartDataList.add(new BarChartData(habitId, habitName, successPercent));
-                                    Log.d(TAG, "BarChartData - ID: " + habitId +
-                                            ", Name: " + habitName +
-                                            ", CompletedDays: " + completedDays +
-                                            ", SuccessPercent: " + successPercent);
-                                }
-
-                                while (barChartDataList.size() < 5) {
-                                    barChartDataList.add(new BarChartData("", "No Habit", 0.0));
-                                    Log.d(TAG, "Added empty column, size: " + barChartDataList.size());
-                                }
-
-                                BarChartAdapter barChartAdapter = new BarChartAdapter(barChartDataList);
-                                rvBarChart.setAdapter(barChartAdapter);
-                                rvBarChart.post(() -> barChartAdapter.notifyDataSetChanged());
-                                Log.d(TAG, "Adapter set with " + barChartDataList.size() + " items");
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Error loading HabitLog: " + e.getMessage());
-                                Toast.makeText(this, "Lỗi tải dữ liệu HabitLog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-
-                                List<BarChartData> fallbackList = new ArrayList<>();
-                                for (int i = 0; i < 5; i++) {
-                                    fallbackList.add(new BarChartData("", "No Habit", 0.0));
-                                }
-                                BarChartAdapter barChartAdapter = new BarChartAdapter(fallbackList);
-                                rvBarChart.setAdapter(barChartAdapter);
-                                rvBarChart.post(() -> barChartAdapter.notifyDataSetChanged());
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading Habits: " + e.getMessage());
-                    Toast.makeText(this, "Lỗi tải danh sách thói quen: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-
-                    List<BarChartData> fallbackList = new ArrayList<>();
-                    for (int i = 0; i < 5; i++) {
-                        fallbackList.add(new BarChartData("", "No Habit", 0.0));
+                    double successPercent = (totalHabits > 0) ? (completedCount * 100.0) / totalHabits : 0.0;
+                    String dayLabel;
+                    try {
+                        dayLabel = displayFormat.format(dateFormat.parse(day));
+                    } catch (ParseException e) {
+                        Log.e(TAG, "ParseException for day " + day + ": " + e.getMessage());
+                        dayLabel = day;
                     }
-                    BarChartAdapter barChartAdapter = new BarChartAdapter(fallbackList);
-                    rvBarChart.setAdapter(barChartAdapter);
-                    rvBarChart.post(() -> barChartAdapter.notifyDataSetChanged());
-                });
+                    barChartDataList.add(new BarChartData(day, dayLabel, successPercent));
+                }
+
+                // Đảm bảo luôn có 5 cột
+                while (barChartDataList.size() < 5) {
+                    String day = dayLabels.get(barChartDataList.size());
+                    String dayLabel;
+                    try {
+                        dayLabel = displayFormat.format(dateFormat.parse(day));
+                    } catch (ParseException e) {
+                        Log.e(TAG, "ParseException for fallback day " + day + ": " + e.getMessage());
+                        dayLabel = day;
+                    }
+                    barChartDataList.add(new BarChartData(day, dayLabel, 0.0));
+                }
+
+                BarChartAdapter barChartAdapter = new BarChartAdapter(barChartDataList);
+                rvBarChart.setAdapter(barChartAdapter);
+                rvBarChart.post(() -> barChartAdapter.notifyDataSetChanged());
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Lỗi tải dữ liệu HabitLog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                setDefaultBarChart();
+            });
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Lỗi tải danh sách thói quen: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            setDefaultBarChart();
+        });
+    }
+
+    private void setDefaultBarChart() {
+        List<BarChartData> fallbackList = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM");
+        Calendar calendar = Calendar.getInstance();
+        for (int i = 4; i >= 0; i--) {
+            Calendar dayCalendar = (Calendar) calendar.clone();
+            dayCalendar.add(Calendar.DAY_OF_MONTH, -i);
+            String day = dateFormat.format(dayCalendar.getTime());
+            String dayLabel;
+            try {
+                dayLabel = displayFormat.format(dateFormat.parse(day));
+            } catch (ParseException e) {
+                Log.e(TAG, "ParseException for default day " + day + ": " + e.getMessage());
+                dayLabel = day;
+            }
+            fallbackList.add(new BarChartData(day, dayLabel, 0.0));
+        }
+        BarChartAdapter barChartAdapter = new BarChartAdapter(fallbackList);
+        rvBarChart.setAdapter(barChartAdapter);
+        rvBarChart.post(() -> barChartAdapter.notifyDataSetChanged());
     }
 }

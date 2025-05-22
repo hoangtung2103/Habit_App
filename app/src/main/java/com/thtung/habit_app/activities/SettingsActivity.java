@@ -61,7 +61,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         binding.dangxuat.setOnClickListener(v -> {
             mAuth.signOut();
-
             mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
                 Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -70,10 +69,8 @@ public class SettingsActivity extends AppCompatActivity {
             });
 
         });
-        // Ánh xạ dòng "Tài khoản"
         accountRow = findViewById(R.id.accountRow);
 
-        // Bắt sự kiện khi nhấn vào dòng "Tài khoản"
         accountRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,6 +79,5 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        // TODO: thêm các dòng điều hướng khác sau
     }
 }

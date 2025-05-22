@@ -66,7 +66,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Đã xong"
+                android:text="Hoàn thành"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -88,43 +88,44 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chưa xong"
+                android:text="Chưa hoàn thành"
                 android:textSize="16sp" />
         </LinearLayout>
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_bar_chart"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginHorizontal="16dp"
-        android:background="@color/bg_gray"
-        android:elevation="4dp"
-        app:layout_constraintTop_toBottomOf="@id/layout_summary"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/rv_bar_chart"
+        app:layout_constraintTop_toBottomOf="@id/layout_summary"
         app:layout_constraintBottom_toTopOf="@id/coordinatorLayout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_bar_chart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/bg_gray"
+                android:elevation="4dp"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="20dp"
+                android:nestedScrollingEnabled="false"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="12dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="8dp"
-                app:cardUseCompatPadding="true"
-                app:layout_constraintTop_toTopOf="parent"
+                app:cardUseCompatPadding="false"
+                app:layout_constraintTop_toBottomOf="@id/rv_bar_chart"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
@@ -141,24 +142,12 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/tv_progress_message"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Bạn đã thực hiện 36% thói quen của mình!"
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/pieChart" />
-
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/constraint1"
                         android:layout_width="80dp"
                         android:layout_height="110dp"
                         android:layout_marginStart="48dp"
-                        android:layout_marginTop="40dp"
+                        android:layout_marginTop="10dp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/pieChart">
 
@@ -189,7 +178,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <TextView
-                            android:id="@+id/txt_hoanthanh"
+                            android:id="@+id/txt_curstreak"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/k2d"
@@ -204,19 +193,19 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Max Streak"
+                            android:text="Cur. Streak"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/txt_hoanthanh" />
+                            app:layout_constraintTop_toBottomOf="@+id/txt_curstreak" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/constraint2"
                         android:layout_width="80dp"
                         android:layout_height="110dp"
-                        android:layout_marginTop="40dp"
-                        android:layout_marginEnd="48dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="44dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/pieChart">
 
@@ -242,12 +231,12 @@
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toStartOf="parent"
                                     app:layout_constraintTop_toTopOf="parent"
-                                    app:srcCompat="@drawable/ic_kohthanh" />
+                                    app:srcCompat="@drawable/coin" />
                             </androidx.constraintlayout.widget.ConstraintLayout>
                         </androidx.cardview.widget.CardView>
 
                         <TextView
-                            android:id="@+id/txt_khonghoanthanh"
+                            android:id="@+id/txt_point"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/k2d"
@@ -262,11 +251,11 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Thất bại"
+                            android:text="Rewarded"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/txt_khonghoanthanh" />
+                            app:layout_constraintTop_toBottomOf="@+id/txt_point" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -277,7 +266,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -292,13 +281,15 @@
             app:fabCradleMargin="8dp"
             app:fabCradleRoundedCornerRadius="50dp"
             app:fabCradleVerticalOffset="6dp"
-            app:hideOnScroll="true">
+            app:hideOnScroll="true"
+            android:gravity="center_horizontal">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/constraintLayout2"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.2">
@@ -318,7 +309,10 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.2">
+                    android:layout_weight="0.2"
+                    app:layout_constraintEnd_toStartOf="@+id/constraintLayout4"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/constraintLayout2">
 
                     <ImageView
                         android:id="@+id/img_ic_thongke"
@@ -328,10 +322,12 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/icon_thongke" />
+                        app:srcCompat="@drawable/icon_thongke"
+                        app:tint="@color/ic_gray" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/constraintLayout4"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.2"
@@ -368,8 +364,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/icon_caidat"
-                        app:tint="@color/ic_gray" />
+                        app:srcCompat="@drawable/icon_caidat" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
         </com.google.android.material.bottomappbar.BottomAppBar>
@@ -383,7 +378,8 @@
             app:layout_anchorGravity="center|top"
             app:maxImageSize="40dp"
             app:tint="@color/white"
-            android:elevation="24dp"/>
+            android:elevation="20dp"/>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

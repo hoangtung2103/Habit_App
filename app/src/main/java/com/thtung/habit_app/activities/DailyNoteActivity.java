@@ -1,9 +1,8 @@
 package com.thtung.habit_app.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ImageButton;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,13 +27,12 @@ import java.util.Locale;
 public class DailyNoteActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewNotes;
-    private TextView tvDateToday;
-    private ImageButton addButton;
+    private TextView tvDateToday, tvEmptyNote;
     private ImageView btnBack;
     private FirestoreManager firestoreManager;
     private String userId;
     private String habitId;
-    private String habitName; // Thêm habitName
+    private String habitName;
     private LocalDate selectedDate;
     private DailyNoteAdapter adapter;
     private ArrayList<HabitNote> noteList;
@@ -46,57 +44,52 @@ public class DailyNoteActivity extends AppCompatActivity {
 
         recyclerViewNotes = findViewById(R.id.recyclerViewNotes);
         tvDateToday = findViewById(R.id.tvDateToday);
-        addButton = findViewById(R.id.addButton);
+        tvEmptyNote = findViewById(R.id.tvEmptyNote);
+
         btnBack = findViewById(R.id.btnBack);
         firestoreManager = new FirestoreManager();
 
         // Lấy dữ liệu từ Intent
         habitId = getIntent().getStringExtra("habitId");
-        habitName = getIntent().getStringExtra("habitName"); // Lấy habitName
+        habitName = getIntent().getStringExtra("habitName");
         selectedDate = (LocalDate) getIntent().getSerializableExtra("selectedDate");
         userId = getIntent().getStringExtra("userId");
 
-        Log.d("DailyNoteActivity", "Received data - habitId: " + habitId + ", habitName: " + habitName + ", userId: " + userId + ", selectedDate: " + selectedDate);
-
         if (habitId == null || userId == null || selectedDate == null) {
-            Log.e("DailyNoteActivity", "Invalid parameters - habitId: " + habitId + ", userId: " + userId + ", selectedDate: " + selectedDate);
-            Toast.makeText(this, "Lỗi: Dữ liệu không hợp lệ", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Lỗi: Dữ liệu không hợp lệ", Toast.LENGTH_SHORT).show();
             noteList = new ArrayList<>();
-            noteList.add(new HabitNote("", userId != null ? userId : "", habitId != null ? habitId : "", "Lỗi: Dữ liệu không hợp lệ", null));
+            noteList.add(new HabitNote("", "", "", "Lỗi: Dữ liệu không hợp lệ", null));
             setupRecyclerView();
             return;
         }
 
+        if (habitName == null || habitName.isEmpty()) {
+            habitName = "Thói quen không xác định";
+        }
+
+        // Cập nhật tvDateToday theo ngày được chọn
         Date selectedJavaDate = Date.from(selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM, yyyy", new Locale("vi", "VN"));
         tvDateToday.setText(sdf.format(selectedJavaDate));
 
         setupRecyclerView();
 
-        addButton.setOnClickListener(v -> {
-            Intent intent = new Intent(DailyNoteActivity.this, AddNoteActivity.class);
-            intent.putExtra("habitId", habitId);
-            intent.putExtra("habitName", habitName); // Truyền habitName
-            intent.putExtra("userId", userId);
-            intent.putExtra("selectedDate", selectedDate);
-            startActivity(intent);
-        });
-
         btnBack.setOnClickListener(v -> finish());
 
+        // Tải danh sách ghi chú cho ngày được chọn
         loadNotesForDate();
     }
 
     private void setupRecyclerView() {
         noteList = new ArrayList<>();
-        adapter = new DailyNoteAdapter(this, noteList, userId, habitId, selectedDate, firestoreManager);
+        // Truyền habitName vào DailyNoteAdapter
+        adapter = new DailyNoteAdapter(this, noteList, userId, habitId, habitName, selectedDate, firestoreManager);
         recyclerViewNotes.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewNotes.setAdapter(adapter);
     }
 
     private void loadNotesForDate() {
         String dateStr = selectedDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        Log.d("DailyNoteActivity", "Loading notes for date: " + dateStr + ", habitId: " + habitId + ", userId: " + userId);
 
         firestoreManager.getHabitNotesByHabitId(userId, habitId, new FirestoreManager.HabitNoteListCallback() {
             @Override
@@ -115,16 +108,17 @@ public class DailyNoteActivity extends AppCompatActivity {
                 }
 
                 if (noteList.isEmpty()) {
-                    noteList.add(new HabitNote("", userId, habitId, "Không có ghi chú nào trong ngày này.", null));
+                    tvEmptyNote.setVisibility(View.VISIBLE);
+                    recyclerViewNotes.setVisibility(View.GONE);
+                } else {
+                    tvEmptyNote.setVisibility(View.GONE);
+                    recyclerViewNotes.setVisibility(View.VISIBLE);
                 }
-
                 adapter.notifyDataSetChanged();
-                Log.d("DailyNoteActivity", "Total notes loaded for date: " + noteList.size());
             }
 
             @Override
             public void onError(String errorMessage) {
-                Log.e("DailyNoteActivity", "Error loading notes: " + errorMessage);
                 Toast.makeText(DailyNoteActivity.this, "Lỗi tải dữ liệu: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -133,6 +127,6 @@ public class DailyNoteActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadNotesForDate();
+        loadNotesForDate(); // Cập nhật lại danh sách khi quay lại activity
     }
 }

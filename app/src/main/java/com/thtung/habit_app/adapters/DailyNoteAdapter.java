@@ -2,6 +2,7 @@ package com.thtung.habit_app.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.thtung.habit_app.R;
-import com.thtung.habit_app.activities.AddNoteActivity;
+import com.thtung.habit_app.activities.FixNoteActivity;
 import com.thtung.habit_app.firebase.FirestoreManager;
 import com.thtung.habit_app.model.HabitNote;
 
@@ -23,19 +24,25 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class DailyNoteAdapter extends RecyclerView.Adapter<DailyNoteAdapter.ViewHolder> {
+    public interface OnNoteActionListener {
+        void onEdit(HabitNote note);
+        void onDelete(HabitNote note);
+    }
 
     private Context context;
     private ArrayList<HabitNote> noteList;
     private String userId;
     private String habitId;
+    private String habitName; // Thêm habitName
     private LocalDate selectedDate;
     private FirestoreManager firestoreManager;
 
-    public DailyNoteAdapter(Context context, ArrayList<HabitNote> noteList, String userId, String habitId, LocalDate selectedDate, FirestoreManager firestoreManager) {
+    public DailyNoteAdapter(Context context, ArrayList<HabitNote> noteList, String userId, String habitId, String habitName, LocalDate selectedDate, FirestoreManager firestoreManager) {
         this.context = context;
         this.noteList = noteList;
         this.userId = userId;
         this.habitId = habitId;
+        this.habitName = habitName; // Lưu habitName
         this.selectedDate = selectedDate;
         this.firestoreManager = firestoreManager;
     }
@@ -62,11 +69,13 @@ public class DailyNoteAdapter extends RecyclerView.Adapter<DailyNoteAdapter.View
 
         // Xử lý nút "Sửa"
         holder.editButton.setOnClickListener(v -> {
-            Intent intent = new Intent(context, AddNoteActivity.class);
+            Intent intent = new Intent(context, FixNoteActivity.class);
             intent.putExtra("habitId", habitId);
             intent.putExtra("userId", userId);
             intent.putExtra("noteId", note.getId());
+            intent.putExtra("habitName", habitName); // Truyền habitName
             intent.putExtra("selectedDate", selectedDate);
+            Log.d("DailyNoteAdapter", "Sending to FixNoteActivity - habitName: " + habitName);
             context.startActivity(intent);
         });
 

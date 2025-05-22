@@ -56,17 +56,14 @@ public class HabitNoteActivity extends AppCompatActivity {
 
         habitId = getIntent().getStringExtra("habitId");
         String habitName = getIntent().getStringExtra("habitName");
-        Log.d("HabitNoteActivity", "Received habitId: " + habitId + ", habitName: " + habitName);
 
         if (habitId == null || habitId.isEmpty()) {
-            Log.e("HabitNoteActivity", "habitId is null or empty");
             Toast.makeText(this, "Lỗi: Không tìm thấy ID thói quen", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         if (userId == null || userId.isEmpty()) {
-            Log.e("HabitNoteActivity", "userId is null or empty, user might not be logged in");
             Toast.makeText(this, "Lỗi: Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -75,15 +72,13 @@ public class HabitNoteActivity extends AppCompatActivity {
         TextView noteTitle = findViewById(R.id.note_title);
         noteTitle.setText(habitName);
 
-        ArrayAdapter<CharSequence> adapterSpinner = ArrayAdapter.createFromResource(this,
-                R.array.note_filter_options, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapterSpinner = ArrayAdapter.createFromResource(this, R.array.note_filter_options, android.R.layout.simple_spinner_item);
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         dropdownSpinner.setAdapter(adapterSpinner);
 
         dropdownSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("HabitNoteActivity", "Spinner selected: " + parent.getItemAtPosition(position));
                 loadNotesFromFirestore();
             }
 
@@ -95,26 +90,24 @@ public class HabitNoteActivity extends AppCompatActivity {
         adapter = new HabitNoteAdapter(this, noteList, new HabitNoteAdapter.OnNoteActionListener() {
             @Override
             public void onEdit(HabitNote note) {
-                Intent intent = new Intent(HabitNoteActivity.this, AddNoteActivity.class);
+                Intent intent = new Intent(HabitNoteActivity.this, FixNoteActivity.class);
                 intent.putExtra("noteId", note.getId());
                 intent.putExtra("habitId", habitId);
+                intent.putExtra("habitName", habitName);
                 startActivity(intent);
             }
 
             @Override
             public void onDelete(HabitNote note) {
                 if (note == null || note.getId() == null || note.getId().isEmpty()) {
-                    Log.e("HabitNoteActivity", "Cannot delete note: note or noteId is null or empty");
                     Toast.makeText(HabitNoteActivity.this, "Lỗi: Ghi chú không hợp lệ", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (userId == null || userId.isEmpty()) {
-                    Log.e("HabitNoteActivity", "Cannot delete note: userId is null or empty");
                     Toast.makeText(HabitNoteActivity.this, "Lỗi: Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                Log.d("HabitNoteActivity", "Deleting note with ID: " + note.getId() + " for userId: " + userId);
                 firestoreManager.deleteHabitNote(userId, note.getId(), new FirestoreManager.NoteDeleteCallback() {
                     @Override
                     public void onNoteDeleted() {
@@ -151,11 +144,9 @@ public class HabitNoteActivity extends AppCompatActivity {
     }
 
     private void loadNotesFromFirestore() {
-        Log.d("HabitNoteActivity", "Loading notes for userId: " + userId + ", habitId: " + habitId);
         firestoreManager.getHabitNotesByHabitId(userId, habitId, new FirestoreManager.HabitNoteListCallback() {
             @Override
             public void onHabitNoteListLoaded(ArrayList<HabitNote> notes) {
-                Log.d("HabitNoteActivity", "Total notes loaded: " + notes.size());
                 //Sort
                 notes.sort((a, b) -> b.getCreateAt().compareTo(a.getCreateAt()));
                 noteList.clear();
@@ -163,20 +154,16 @@ public class HabitNoteActivity extends AppCompatActivity {
                 // Kiểm tra và log từng note
                 for (HabitNote note : notes) {
                     if (note.getId() == null || note.getId().isEmpty()) {
-                        Log.w("HabitNoteActivity", "Invalid note in loaded data: ID is null or empty");
                         continue;
                     }
-                    Log.d("HabitNoteActivity", "Loaded note with ID: " + note.getId());
                 }
 
                 String selectedFilter = dropdownSpinner.getSelectedItem().toString();
-                Log.d("HabitNoteActivity", "Selected filter: " + selectedFilter);
 
                 Calendar currentDate = Calendar.getInstance();
                 currentDate.setTime(new Date()); // Ngày hiện tại: 05:27 PM +07, Thursday, May 22, 2025
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
-                Log.d("HabitNoteActivity", "Current date: " + sdf.format(currentDate.getTime()));
 
                 for (HabitNote note : notes) {
                     if (note.getId() == null || note.getId().isEmpty()) {
@@ -192,9 +179,7 @@ public class HabitNoteActivity extends AppCompatActivity {
                     Calendar noteDate = Calendar.getInstance();
                     noteDate.setTime(createAt.toDate());
 
-                    Log.d("HabitNoteActivity", "Note ID: " + note.getId() + ", createAt: " + sdf.format(noteDate.getTime()));
                     long diffDays = daysBetween(noteDate, currentDate);
-                    Log.d("HabitNoteActivity", "Days difference for note ID " + note.getId() + ": " + diffDays);
 
                     if ("Tất cả".equals(selectedFilter) ||
                             ("7 ngày".equals(selectedFilter) && diffDays <= 7) ||
@@ -203,7 +188,6 @@ public class HabitNoteActivity extends AppCompatActivity {
                     }
                 }
 
-                Log.d("HabitNoteActivity", "Filtered notes count: " + noteList.size());
                 adapter.notifyDataSetChanged();
                 TextView emptyText = findViewById(R.id.emptyNotesText);
                 emptyText.setVisibility(noteList.isEmpty() ? View.VISIBLE : View.GONE);
@@ -212,7 +196,6 @@ public class HabitNoteActivity extends AppCompatActivity {
 
             @Override
             public void onError(String errorMessage) {
-                Log.e("HabitNoteActivity", "Error loading notes: " + errorMessage);
                 Toast.makeText(HabitNoteActivity.this, "Lỗi tải dữ liệu: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
